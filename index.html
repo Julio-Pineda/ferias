@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+    <!-- LIBRERÍAS EXTERNAS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #003366; --secondary-color: #D4AF37; --background-color: #f0f2f5;
+            --card-background: #ffffff; --text-color: #333; --light-text-color: #6c757d;
+            --border-color: #cccccc; --shadow: 0 4px 12px rgba(0, 0, 0, 0.414);
+            --danger-color: #dc3545; --warning-color: #ffc107; --success-color: #28a745; --full-color: #0080ff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); }
+        .container { max-width: 1800px; margin: 0 auto; padding: 2rem; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 2.5rem; color: var(--primary-color); }
+        header p { font-size: 1.1rem; color: var(--light-text-color); }
+
+        .tabs-nav { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); margin-bottom: 2rem; flex-wrap: wrap; }
+        .tab-link { padding: 1rem 1.5rem; cursor: pointer; border: none; background: none; font-size: 1.1rem; font-weight: 600; color: var(--light-text-color); border-bottom: 4px solid transparent; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; }
+        .tab-link:hover { color: var(--primary-color); }
+        .tab-link.active { color: var(--primary-color); border-bottom-color: var(--secondary-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card { background: var(--card-background); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; overflow: hidden; padding: 22px;}
+        .card-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .card-header h3 { font-size: 1.5rem; color: var(--primary-color); display: flex; align-items: center; gap: 0.75rem; }
+        .card-body { padding: 1.5rem; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
+
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f8f9fa; }
+        td.actions { display: flex; gap: 0.5rem; }
+
+        /* MÓDULO 2: EVENTOS */
+        .event-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem; }
+        .event-card-item { background: var(--card-background); border-radius: 8px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+        .event-card-item-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .event-card-item-header h4 { color: var(--primary-color); }
+        .event-card-item-body { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; flex-grow: 1; }
+        .event-card-progress { display: flex; align-items: center; gap: 1rem; }
+        .progress-chart-container { width: 80px; height: 80px; position: relative; flex-shrink: 0;}
+        .progress-chart-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; font-weight: 700; }
+        .event-card-info { font-size: 0.9rem; color: var(--light-text-color); }
+        .responsables-list { list-style: none; font-size: 0.9rem; margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 5px;}
+        .responsables-list span { background-color: var(--border-color); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+        .event-card-item-footer { padding: 1rem; border-top: 1px solid var(--border-color); text-align: right; }
+        .btn-manage { background-color: var(--success-color); color: white; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 2rem; border-radius: 8px; max-width: 90%; width: 900px; position: relative; animation: slideIn 0.3s; }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-btn { color: #aaa; position: absolute; top: 1rem; right: 1.5rem; font-size: 1.5rem; font-weight: bold; cursor: pointer; }
+        .modal-content h3 { margin-bottom: 1.5rem; color: var(--primary-color); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; }
+
+        /* Checklist en Modal */
+        #checklist-container { max-height: 60vh; overflow-y: auto; padding-right: 1rem; }
+        .checklist-phase h4 { margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-color); }
+        .checklist-task { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px dashed var(--border-color); flex-wrap: wrap;}
+        .checklist-task input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--success-color); flex-shrink: 0; }
+        .task-description { flex-grow: 1; display: flex; align-items: center; gap: 0.5rem;}
+        .task-description input[type="text"] { width: 100%; border: none; border-bottom: 1px solid var(--border-color); padding: 0.5rem; }
+        .task-assignment { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; width: 250px; }
+        .task-assignment input[type="date"] { padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); }
+        .responsables-display { flex-grow: 1; font-size: 0.85rem; color: var(--light-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .checklist-task.completed .task-description input[type="text"] { text-decoration: line-through; color: var(--light-text-color); }
+        .add-task-btn-container { text-align: right; margin-top: 1rem; }
+        .btn-add-task { background: var(--secondary-color); color: var(--primary-color); }
+        
+        /* Modal Asignar Responsables */
+        #responsables-checkbox-container { max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); padding: 1rem; border-radius: 6px; }
+        .responsable-option { display: block; margin-bottom: 0.5rem; }
+        .responsable-option label { margin-left: 0.5rem; }
+        
+        /* MÓDULO CRONOGRAMA */
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .calendar-nav h2 { color: var(--primary-color); }
+        #calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 0 42px 42px 42px;}
+        .calendar-header { font-weight: bold; text-align: center; padding: 0.5rem; color: var(--primary-color); padding: 42px 42px 0 42px; }
+        .calendar-day { border: 1px solid var(--border-color); min-height: 80px; padding: 0.5rem; background-color: var(--card-background); position: relative; border-radius: 12px; }
+        .calendar-day.other-month { background-color: #f8f9fa; color: #ccc; }
+        .day-number { font-weight: bold; }
+        .day-tasks-badge { position: absolute; bottom: 8px; right: 8px; background-color: var(--secondary-color); color: var(--primary-color); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; }
+        .calendar-day.has-tasks { cursor: pointer; background-color: #fffac3; }
+        #day-tasks-list li { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--border-color); }
+        /* ... tu CSS existente ... */
+        p {
+            margin-bottom: 22px;
+        }
+
+        /* --- NUEVO: ESTILO PARA EDICIÓN EN LÍNEA --- */
+        .event-card-item-header h4 {
+            cursor: pointer; /* Indica que el título es interactivo */
+            transition: background-color 0.2s;
+            padding: 5px;
+            border-radius: 4px;
+            width: calc(100% - 40px); /* Deja espacio para el botón de borrar */
+        }
+        .event-card-item-header h4:hover {
+            background-color: #f0f2f5; /* Un ligero feedback al pasar el ratón */
+        }
+        .inline-edit-input {
+            width: 100%;
+            font-size: 1.1rem; /* Asegura que coincida con el tamaño del h4 */
+            font-weight: bold;
+            color: var(--primary-color);
+            border: 2px solid var(--secondary-color);
+            border-radius: 4px;
+            padding: 4px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>PROYECTO</h1>
+        <p>FORTALECIMIENTO ECONÓMICO DE UNIDADES PRODUCTIVAS Y EMPRESAS MEDIANTE LA COMERCIALIZACIÓN EN MERCADOS INTERNOS Y EXTERNOS DEL DEPARTAMENTO DEL CAUCA</p>
+    </header>
+
+    <div class="tabs-nav">
+        <button class="tab-link active" data-tab="analitica"><i class="fas fa-chart-pie"></i> Analítica</button>
+        <button class="tab-link" data-tab="gestion"><i class="fas fa-tasks"></i> Gestión de Eventos</button>
+        <button class="tab-link" data-tab="cronograma"><i class="fas fa-calendar-alt"></i> Cronograma</button>
+        <button class="tab-link" data-tab="equipo"><i class="fas fa-users"></i> Gestión de Equipo</button>
+        <button class="tab-link" data-tab="reportes"><i class="fas fa-download"></i> Reportes</button>
+    </div>
+
+    <!-- MÓDULO 1: ANALÍTICA -->
+    <div id="analitica" class="tab-content active">
+        <div class="grid-container" style="grid-template-columns: 1fr 2fr;">
+            <div class="card"><div class="card-header"><h3><i class="fas fa-tachometer-alt"></i> Avance general</h3></div><div class="card-body" style="height: 350px;"><canvas id="generalChart"></canvas></div></div>
+            <div class="card"><div class="card-header"><h3><i class="fas fa-calendar-check"></i> Avance por evento</h3></div><div class="card-body" style="height: 350px;"><canvas id="eventosChart"></canvas></div></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3><i class="fas fa-user-check"></i> Desempeño por persona</h3></div>
+            <div class="card-body" style="height: 400px;"><canvas id="personasChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- MÓDULO 2: GESTIÓN DE EVENTOS -->
+    <div id="gestion" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-clipboard-list" style="color:var(--success-color);"></i> Eventos del proyecto</h3>
+                <button class="btn btn-primary" id="btn-add-evento"><i class="fas fa-plus"></i> Crear nuevo</button>
+            </div>
+            <div class="card-body"><div id="event-grid-container" class="event-grid"></div></div>
+        </div>
+    </div>
+    
+    <!-- MÓDULO 3: CRONOGRAMA -->
+    <div id="cronograma" class="tab-content">
+        <div class="card">
+            <div class="card-header"><h3><i class="fas fa-calendar-alt" style="color:var(--primary-color);"></i> Cronograma mensual de tareas</h3></div>
+            <div class="card-body">
+                <div class="calendar-nav">
+                    <button class="btn btn-primary" id="prev-month-btn"><i class="fas fa-chevron-left"></i></button>
+                    <h2 id="calendar-month-year"></h2>
+                    <button class="btn btn-primary" id="next-month-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div id="calendar-grid-header" class="calendar-header" style="display:grid; grid-template-columns: repeat(7, 1fr); gap: 10px;">
+                    <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+                </div>
+                <div id="calendar-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÓDULO 4: GESTIÓN DE EQUIPO -->
+    <div id="equipo" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-users-cog" style="color:#6f42c1;"></i> Miembros del equipo</h3>
+                <button class="btn btn-primary" id="btn-add-miembro"><i class="fas fa-user-plus"></i> Añadir miembro</button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="tabla-equipo">
+                        <thead><tr><th>Nombre</th><th>Tareas asignadas</th><th>Acciones</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÓDULO 5: REPORTES Y DATOS -->
+    <div id="reportes" class="tab-content">
+        <div class="card">
+             <div class="card-header"><h3><i class="fas fa-file-excel" style="color:var(--warning-color);"></i> Reportes en Excel</h3></div>
+             <div class="card-body grid-container">
+                 <div class="card"><h4>Reporte: Tareas por Persona</h4><p>Genera un archivo Excel con el detalle de tareas asignadas a cada miembro del equipo.</p><button class="btn btn-primary" id="btn-download-tareas-persona"><i class="fas fa-file-excel"></i> Descargar</button></div>
+                 <div class="card"><h4>Reporte: Avance por Evento</h4><p>Genera un archivo Excel con el resumen de avance (total de tareas, completadas, %) de cada evento.</p><button class="btn btn-primary" id="btn-download-avance-evento"><i class="fas fa-file-excel"></i> Descargar</button></div>
+                 <div class="card"><h4>Reporte: Estado General de Eventos</h4><p>Genera un archivo Excel con una hoja por cada evento, detallando todas sus tareas, fases, responsables y estado.</p><button class="btn btn-primary" id="btn-download-estado-general"><i class="fas fa-file-excel"></i> Descargar Reporte Completo</button></div>
+             </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3><i class="fas fa-database" style="color: var(--primary-color);"></i> Gestión de Datos de la App</h3></div>
+            <div class="card-body grid-container">
+                <div class="card">
+                    <h4>Exportar Datos (Backup)</h4>
+                    <p>Guarda todo el estado de la aplicación (eventos, equipo, tareas) en un archivo .json.</p>
+                    <button class="btn btn-primary" id="btn-export-data"><i class="fas fa-file-export"></i> Exportar Backup</button>
+                </div>
+                <div class="card">
+                    <h4>Importar Datos (Restaurar)</h4>
+                    <p>Carga un archivo de backup (.json) para restaurar el estado de la aplicación. ¡Sobrescribirá los datos actuales!</p>
+                    <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                    <button class="btn btn-danger" onclick="document.getElementById('import-file-input').click();"><i class="fas fa-file-import"></i> Importar Backup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODALES -->
+<div id="modal-checklist" class="modal"><div class="modal-content"><span class="close-btn">&times;</span><h3 id="checklist-title"></h3><div id="checklist-container"></div></div></div>
+<div id="modal-miembro" class="modal"><div class="modal-content" style="width: 500px;"><span class="close-btn">&times;</span><h3 id="modal-miembro-title"></h3><form id="form-miembro"><input type="hidden" id="miembro-id"><div class="form-group"><label for="miembro-nombre">Nombre del Miembro</label><input type="text" id="miembro-nombre" required></div><button type="submit" class="btn btn-primary">Guardar</button></form></div></div>
+<div id="modal-evento" class="modal"><div class="modal-content" style="width: 500px;"><span class="close-btn">&times;</span><h3>Crear Nuevo Evento</h3><form id="form-evento"><div class="form-group"><label for="evento-nombre">Nombre del Evento</label><input type="text" id="evento-nombre" placeholder="Ej: Feria Subregional Popayán" required></div><div class="form-group"><label for="evento-fecha">Fecha de Inicio</label><input type="date" id="evento-fecha" required></div><button type="submit" class="btn btn-primary">Crear Evento</button></form></div></div>
+<!-- Nuevo: Modal para asignar responsables -->
+<div id="modal-responsables" class="modal"><div class="modal-content" style="width: 400px;"><span class="close-btn">&times;</span><h3>Asignar Responsables</h3><div id="responsables-checkbox-container"></div><div style="text-align: right; margin-top: 1rem;"><button id="btn-save-responsables" class="btn btn-primary">Guardar</button></div></div></div>
+<!-- Nuevo: Modal para ver tareas del día -->
+<div id="modal-day-tasks" class="modal"><div class="modal-content" style="width: 600px;"><span class="close-btn">&times;</span><h3 id="day-tasks-title"></h3><ul id="day-tasks-list" style="list-style:none;"></ul></div></div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- ESTADO GLOBAL Y CONFIGURACIÓN ---
+        const state = { eventos: [], equipo: [] };
+        const charts = {};
+        const app = {}; // Objeto para funciones globales
+        let currentCalendarDate = new Date(); // Para el nuevo módulo de cronograma
+        
+        // --- MODELO DE DATOS Y PLANTILLAS ---
+        const checklistTemplate = {
+            planificacion: [ 
+                { texto: 'Definir objetivos claros y KPIs del evento', completado: false, responsables: [], fecha: '' },
+                { texto: 'Elaborar presupuesto detallado y buscar cofinanciación', completado: false, responsables: [], fecha: '' },
+                { texto: 'Crear cronograma de trabajo con hitos (Gantt)', completado: false, responsables: [], fecha: '' },
+                { texto: 'Definir concepto y temática del evento', completado: false, responsables: [], fecha: '' }
+            ],
+            logistica: [ 
+                { texto: 'Seleccionar, negociar y reservar locación/plataforma', completado: false, responsables: [], fecha: '' },
+                { texto: 'Gestionar permisos (Bomberos, Alcaldía, Sayco)', completado: false, responsables: [], fecha: '' },
+                { texto: 'Contratar proveedores (stands, sonido, tiquetes, etc.)', completado: false, responsables: [], fecha: '' },
+                { texto: 'Diseñar y lanzar convocatoria de participantes/expositores', completado: false, responsables: [], fecha: '' },
+                { texto: 'Desarrollar y ejecutar plan de marketing y comunicación', completado: false, responsables: [], fecha: '' }
+            ],
+            ejecucion: [ 
+                { texto: 'Supervisar montaje y realizar pruebas técnicas', completado: false, responsables: [], fecha: '' },
+                { texto: 'Coordinar registro, bienvenida y entrega de material', completado: false, responsables: [], fecha: '' },
+                { texto: 'Gestionar el desarrollo de la agenda en tiempo real', completado: false, responsables: [], fecha: '' },
+                { texto: 'Brindar soporte continuo a participantes y asistentes', completado: false, responsables: [], fecha: '' },
+                { texto: 'Documentar evento (fotos, videos, testimonios)', completado: false, responsables: [], fecha: '' }
+            ],
+            cierre: [ 
+                { texto: 'Supervisar desmontaje y limpieza del sitio', completado: false, responsables: [], fecha: '' },
+                { texto: 'Realizar cierre financiero y pago a proveedores', completado: false, responsables: [], fecha: '' },
+                { texto: 'Enviar encuestas de satisfacción y recopilar feedback', completado: false, responsables: [], fecha: '' },
+                { texto: 'Hacer seguimiento a contactos y negocios generados', completado: false, responsables: [], fecha: '' },
+                { texto: 'Elaborar informe final de resultados y lecciones aprendidas', completado: false, responsables: [], fecha: '' }
+            ]
+        };
+    
+        // --- MANEJO DE MODALES ---
+        const modals = { 
+            checklist: document.getElementById('modal-checklist'), 
+            miembro: document.getElementById('modal-miembro'), 
+            evento: document.getElementById('modal-evento'),
+            responsables: document.getElementById('modal-responsables'),
+            dayTasks: document.getElementById('modal-day-tasks')
+        };
+        
+        const openModal = (modal) => modal.style.display = 'block';
+        const closeModal = (modal) => modal.style.display = 'none';
+        
+        Object.values(modals).forEach(modal => {
+            if (modal) {
+                modal.querySelector('.close-btn').addEventListener('click', () => closeModal(modal));
+                modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
+            }
+        });
+    
+        // --- PERSISTENCIA ---
+// --- PERSISTENCIA ---
+const loadState = () => {
+    let loadedState = JSON.parse(localStorage.getItem('projectManagementState_v8')) || { 
+        equipo: [
+            { id: Date.now(), nombre: 'Coordinación de Proyecto' },
+            ...[
+                'Andres Felipe Samboni Perez',
+                'Daniela Alejandra Mera Lopez',
+                'Daniela Popo Choco',
+                'Javier Mariano Mera Rivera',
+                'Jose Sebastian Restrepo Muñoz',
+                'Juan Diego Aza Arcos',
+                'José Fernando Ruíz López',
+                'Luz Elena Laverde Urrea',
+                'Manuel Vicente Córdoba Martinez',
+                'María Fernanda Montenegro Mera',
+                'María Inés Sánchez',
+                'Sindy Paola Zuñiga Arrechea'
+            ].map((nombre, i) => ({ id: Date.now() + i + 1, nombre }))
+        ],
+        eventos: []
+    };
+
+    loadedState.eventos.forEach(evento => {
+        app.getAllTasks(evento).forEach(tarea => {
+            if (tarea.responsable && !Array.isArray(tarea.responsables)) {
+                tarea.responsables = tarea.responsable ? [String(tarea.responsable)] : [];
+                delete tarea.responsable;
+            }
+            if (!tarea.responsables) {
+                tarea.responsables = [];
+            }
+        });
+    });
+
+    Object.assign(state, loadedState);
+};
+
+const saveState = () => localStorage.setItem('projectManagementState_v8', JSON.stringify(state));
+
+    
+        // --- LÓGICA DE RENDERIZADO (VISTAS) ---
+        const render = () => { app.renderCharts(); app.renderEventGrid(); app.renderEquipoTable(); app.renderCalendar(); };
+        
+        app.renderCharts = () => {
+            const data = app.calculateAnalytics();
+            if (charts.general) charts.general.destroy();
+            charts.general = new Chart(document.getElementById('generalChart').getContext('2d'), { type: 'doughnut', data: { labels: ['Completado', 'Pendiente'], datasets: [{ data: [data.general.completado, data.general.pendiente], backgroundColor: ['#28a745', '#dc3545'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+            if (charts.eventos) charts.eventos.destroy(); charts.eventos = new Chart(document.getElementById('eventosChart').getContext('2d'), { type: 'bar', data: { labels: data.porEvento.labels, datasets: [{ label: 'Avance (%)', data: data.porEvento.data, backgroundColor: data.porEvento.labels.map(() => '#003366'), barPercentage: 0.3, categoryPercentage: 1.0 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, ticks: { font: { size: 12 } } }, x: { ticks: { font: { size: 18 } } } }, plugins: { legend: { display: false, labels: { font: { size: 14 } } }, tooltip: { titleFont: { size: 14 }, bodyFont: { size: 13 } } } } });
+            
+            if (charts.personas) charts.personas.destroy();
+            charts.personas = new Chart(document.getElementById('personasChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: data.porPersona.labels, datasets: [ { label: 'Completadas', data: data.porPersona.completadas, backgroundColor: '#28a745', categoryPercentage: 0.9, barPercentage: 0.4 }, { label: 'Pendientes', data: data.porPersona.pendientes, backgroundColor: '#dc3545', categoryPercentage: 0.9, barPercentage: 0.4 } ] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, beginAtZero: true }, y: { stacked: true, ticks: { font: { size: 18 } } } }, plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: function(context) { const label = context.dataset.label || ''; const value = context.raw; const dataIndex = context.dataIndex; const completadas = context.chart.config.data.datasets[0].data[dataIndex] || 0; const pendientes = context.chart.config.data.datasets[1].data[dataIndex] || 0; const total = completadas + pendientes; if (label === 'Completadas') { return ` Completadas: ${value} de ${total}`; } if (label === 'Pendientes') { return ` Pendientes: ${value} de ${total}`; } return `${label}: ${value}`; } } } } }
+            });
+        };
+    
+        app.renderEventGrid = () => {
+            const container = document.getElementById('event-grid-container'); 
+            container.innerHTML = '';
+            state.eventos.forEach(evento => {
+                const { total, completadas } = app.getEventProgress(evento);
+                const avance = total > 0 ? Math.round((completadas / total) * 100) : 0;
+                const responsablesIds = [...new Set(app.getAllTasks(evento).flatMap(t => t.responsables).filter(Boolean))];
+                const responsablesNombres = responsablesIds.map(rId => app.getMiembroNombre(rId));
+                const card = document.createElement('div'); 
+                card.className = 'event-card-item';
+                const progressColor = app.getSemaforoColor(avance);
+                card.innerHTML = `
+                    <div class="event-card-item-header">
+                        <!-- MODIFICACIÓN 1: Añadido onclick para editar -->
+                        <h4 onclick="app.handleEditEventNameClick(this, '${evento.id}')" title="Haz clic para editar el nombre">${evento.nombre}</h4>
+                        <button class="btn btn-danger btn-sm" onclick="app.handleDeleteEvento('${evento.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="event-card-item-body">
+                        <div class="event-card-progress">
+                            <div class="progress-chart-container"><canvas id="progress-${evento.id}"></canvas><div class="progress-chart-text" style="color:${progressColor};">${avance}%</div></div>
+                            <div class="event-card-info"><strong>Fecha Inicio:</strong> ${evento.fecha}<br><strong>Tareas:</strong> ${completadas}/${total}</div>
+                        </div>
+                        <div><strong>Equipo asignado:</strong><div class="responsables-list">${responsablesNombres.length > 0 ? responsablesNombres.map(r => `<span>${r}</span>`).join(' ') : '<span>Sin asignar</span>'}</div></div>
+                    </div>
+                    <div class="event-card-item-footer"><button class="btn btn-manage" onclick="app.renderChecklistModal('${evento.id}')"><i class="fas fa-edit"></i> Gestionar</button></div>`;
+                container.appendChild(card);
+                new Chart(document.getElementById(`progress-${evento.id}`).getContext('2d'), { type: 'doughnut', data: { datasets: [{ data: [avance, 100 - avance], backgroundColor: [progressColor, '#e9ecef'], borderWidth: 0 }] }, options: { cutout: '70%', plugins: { tooltip: { enabled: false } } } });
+            });
+        };
+    
+        app.renderEquipoTable = () => {
+            const tbody = document.getElementById('tabla-equipo').querySelector('tbody'); 
+            tbody.innerHTML = '';
+            state.equipo.forEach(miembro => {
+                const tareasAsignadas = state.eventos.flatMap(e => app.getAllTasks(e)).filter(t => t.responsables.includes(String(miembro.id))).length;
+                tbody.innerHTML += `<tr><td>${miembro.nombre}</td><td>${tareasAsignadas}</td><td class="actions"><button class="btn btn-sm" style="background-color: var(--warning-color);" onclick="app.handleEditMiembro(${miembro.id})"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="app.handleDeleteMiembro(${miembro.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+            });
+        };
+    
+        app.renderChecklistModal = (eventoId) => {
+            const evento = state.eventos.find(e => e.id === eventoId); 
+            if (!evento) return;
+            document.getElementById('checklist-title').textContent = `Gestionar: ${evento.nombre}`;
+            const container = document.getElementById('checklist-container');
+            let html = '';
+            for (const [fase, tareas] of Object.entries(evento.fases)) {
+                html += `<div class="checklist-phase" data-fase-id="${fase}"><h4>${fase.charAt(0).toUpperCase() + fase.slice(1)}</h4><div id="task-list-${fase}">`;
+                tareas.forEach(tarea => {
+                    const nombresResponsables = app.getMiembrosNombres(tarea.responsables);
+                    html += `
+                        <div class="checklist-task ${tarea.completado ? 'completed' : ''}" data-task-id="${tarea.id}">
+                            <input type="checkbox" onchange="app.handleToggleTask('${evento.id}', '${fase}', '${tarea.id}')" ${tarea.completado ? 'checked' : ''}>
+                            <div class="task-description"><input type="text" value="${tarea.texto}" onchange="app.handleEditTaskText('${evento.id}', '${fase}', '${tarea.id}', this.value)"></div>
+                            <div class="task-assignment">
+                                <input type="date" value="${tarea.fecha || ''}" onchange="app.handleEditTaskDate('${evento.id}', '${fase}', '${tarea.id}', this.value)">
+                                <div class="responsables-display" title="${nombresResponsables}">${nombresResponsables || 'Sin asignar'}</div>
+                                <button class="btn btn-sm" onclick="app.openResponsablesModal('${evento.id}', '${fase}', '${tarea.id}')">Asignar</button>
+                                <button class="btn btn-sm" style="background:none; color:var(--danger-color);" onclick="app.handleDeleteTask('${evento.id}', '${fase}', '${tarea.id}')"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>`;
+                });
+                html += `</div><div class="add-task-btn-container"><button class="btn btn-add-task btn-sm" onclick="app.handleAddTask('${evento.id}', '${fase}')"><i class="fas fa-plus"></i> Añadir Tarea</button></div></div>`;
+            }
+            container.innerHTML = html;
+            openModal(modals.checklist);
+        };
+        
+        // --- LÓGICA DE NEGOCIO Y HELPERS ---
+        app.getMiembroNombre = (id) => state.equipo.find(m => m.id == id)?.nombre || 'N/A';
+        app.getMiembrosNombres = (ids) => ids.map(id => app.getMiembroNombre(id)).join(', ');
+        app.getAllTasks = (evento) => Object.values(evento.fases).flat();
+        app.getEventProgress = (evento) => { const t = app.getAllTasks(evento); return { total: t.length, completadas: t.filter(x => x.completado).length }; };
+        app.getSemaforoColor = (v) => v === 100 ? 'var(--full-color)' : v >= 67 ? 'var(--success-color)' : v >= 34 ? 'var(--warning-color)' : 'var(--danger-color)';
+    
+        app.calculateAnalytics = () => {
+            let tT = 0, tC = 0; const pE = { labels: [], data: [] }; const pP = {};
+            state.equipo.forEach(m => pP[m.id] = { n: m.nombre, c: 0, t: 0 });
+            state.eventos.forEach(e => {
+                const { total, completadas } = app.getEventProgress(e); tT += total; tC += completadas;
+                pE.labels.push(e.nombre); pE.data.push(total > 0 ? (completadas / total) * 100 : 0);
+                app.getAllTasks(e).forEach(t => {
+                    t.responsables.forEach(rId => {
+                        if (pP[rId]) {
+                            pP[rId].t++;
+                            if (t.completado) { pP[rId].c++; }
+                        }
+                    });
+                });
+            });
+            return {
+                general: { completado: tC, pendiente: tT - tC },
+                porEvento: pE,
+                porPersona: {
+                    labels: Object.values(pP).map(p => p.n),
+                    completadas: Object.values(pP).map(p => p.c),
+                    pendientes: Object.values(pP).map(p => p.t - p.c)
+                }
+            };
+        };
+    
+        // --- MANEJADORES DE EVENTOS GLOBALES ---
+
+        // --- NUEVO: FUNCIONES PARA EDITAR EL NOMBRE DEL EVENTO EN LÍNEA ---
+        app.handleEditEventNameClick = (h4Element, eventoId) => {
+            const originalName = h4Element.textContent.trim();
+            h4Element.innerHTML = ''; // Limpiar el h4
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalName;
+            input.className = 'inline-edit-input';
+            
+            // Función para guardar
+            const save = () => {
+                const newName = input.value.trim();
+                if (newName && newName !== originalName) {
+                    app.handleSaveEventName(eventoId, newName);
+                } else {
+                    // Si no hay cambio o el nombre está vacío, restaurar
+                    h4Element.textContent = originalName;
+                }
+            };
+
+            input.addEventListener('blur', save); // Guardar cuando pierde el foco
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur(); // Simula perder el foco para guardar
+                } else if (e.key === 'Escape') {
+                    h4Element.textContent = originalName; // Cancela la edición
+                }
+            });
+
+            h4Element.appendChild(input);
+            input.focus();
+            input.select();
+        };
+
+        app.handleSaveEventName = (eventoId, newName) => {
+            const evento = state.eventos.find(e => e.id === eventoId);
+            if (evento) {
+                evento.nombre = newName;
+                saveState();
+                render(); // Re-renderizar todo para que los cambios se reflejen en todas partes (gráficos, etc.)
+            }
+        };
+
+        app.handleEditMiembro = (id) => { const m = state.equipo.find(x => x.id === id); document.getElementById('miembro-id').value = m.id; document.getElementById('miembro-nombre').value = m.nombre; document.getElementById('modal-miembro-title').innerText = 'Editar Miembro'; openModal(modals.miembro); };
+        app.handleDeleteMiembro = (id) => { if(confirm('¿Está seguro? Las tareas asignadas a esta persona quedarán sin ese responsable.')) { state.equipo = state.equipo.filter(m => m.id !== id); state.eventos.forEach(e => app.getAllTasks(e).forEach(t => { t.responsables = t.responsables.filter(rId => rId != id); })); saveState(); render(); } };
+        app.handleDeleteEvento = (id) => { if(confirm('¿Seguro que desea eliminar este evento?')) { state.eventos = state.eventos.filter(e => e.id !== id); saveState(); render(); } };
+        app.handleAddTask = (eId, f) => { state.eventos.find(e => e.id === eId).fases[f].push({ id: Date.now(), texto: 'Nueva Tarea (Editar)', completado: false, responsables: [], fecha: '' }); saveState(); app.renderChecklistModal(eId); };
+        app.handleDeleteTask = (eId, f, tId) => { const e = state.eventos.find(x => x.id === eId); e.fases[f] = e.fases[f].filter(t => t.id != tId); saveState(); app.renderChecklistModal(eId); };
+        app.handleToggleTask = (eId, f, tId) => { const t = state.eventos.find(e => e.id === eId).fases[f].find(x => x.id == tId); t.completado = !t.completado; saveState(); render(); document.querySelector(`.checklist-task[data-task-id='${tId}']`).classList.toggle('completed', t.completado); };
+        app.handleEditTaskText = (eId, f, tId, txt) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).texto = txt; saveState(); };
+        app.handleEditTaskDate = (eId, f, tId, date) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).fecha = date; saveState(); render(); };
+        
+        // --- LÓGICA PARA MÚLTIPLES RESPONSABLES ---
+        app.openResponsablesModal = (eId, f, tId) => {
+            const tarea = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId);
+            const container = document.getElementById('responsables-checkbox-container');
+            container.innerHTML = state.equipo.map(m => `
+                <div class="responsable-option">
+                    <label>
+                        <input type="checkbox" value="${m.id}" ${tarea.responsables.includes(String(m.id)) ? 'checked' : ''}>
+                        ${m.nombre}
+                    </label>
+                </div>
+            `).join('');
+            
+            const saveBtn = document.getElementById('btn-save-responsables');
+            saveBtn.onclick = () => app.handleSaveResponsables(eId, f, tId);
+            openModal(modals.responsables);
+        };
+    
+        app.handleSaveResponsables = (eId, f, tId) => {
+            const nuevosResponsables = [];
+            document.querySelectorAll('#responsables-checkbox-container input:checked').forEach(checkbox => {
+                nuevosResponsables.push(checkbox.value);
+            });
+            state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).responsables = nuevosResponsables;
+            saveState();
+            render(); 
+            app.renderChecklistModal(eId); 
+            closeModal(modals.responsables);
+        };
+    
+        // --- LÓGICA PARA CRONOGRAMA ---
+        app.renderCalendar = () => {
+            const grid = document.getElementById('calendar-grid');
+            const monthYearEl = document.getElementById('calendar-month-year');
+            if (!grid || !monthYearEl) return;
+    
+            grid.innerHTML = '';
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            monthYearEl.textContent = `${currentCalendarDate.toLocaleString('es-ES', { month: 'long' })} ${year}`.toUpperCase();
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const tasksByDate = {};
+            state.eventos.forEach(evento => {
+                app.getAllTasks(evento).forEach(tarea => {
+                    if (tarea.fecha) {
+                        if (!tasksByDate[tarea.fecha]) tasksByDate[tarea.fecha] = [];
+                        tasksByDate[tarea.fecha].push({ ...tarea, eventoNombre: evento.nombre });
+                    }
+                });
+            });
+    
+            for (let i = 0; i < firstDay; i++) { grid.innerHTML += `<div class="calendar-day other-month"></div>`; }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.innerHTML = `<div class="day-number">${day}</div>`;
+                if (tasksByDate[dateStr]) {
+                    dayEl.classList.add('has-tasks');
+                    dayEl.innerHTML += `<div class="day-tasks-badge">${tasksByDate[dateStr].length}</div>`;
+                    dayEl.onclick = () => app.showDayTasks(dateStr, tasksByDate[dateStr]);
+                }
+                grid.appendChild(dayEl);
+            }
+        };
+    
+        app.showDayTasks = (dateStr, tasks) => {
+            const dateObj = new Date(dateStr + 'T00:00:00'); 
+            document.getElementById('day-tasks-title').textContent = `Tareas para el ${dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+            const listEl = document.getElementById('day-tasks-list');
+            listEl.innerHTML = tasks.map(t => `
+                <li>
+                    <strong>${t.texto}</strong><br>
+                    <small><em>Evento:</em> ${t.eventoNombre}</small><br>
+                    <small><em>Responsables:</em> ${app.getMiembrosNombres(t.responsables) || 'Sin asignar'}</small>
+                </li>
+            `).join('');
+            openModal(modals.dayTasks);
+        };
+    
+    
+        // --- EVENT LISTENERS DE FORMULARIOS Y BOTONES ---
+        document.getElementById('form-evento').addEventListener('submit', e => { e.preventDefault(); const newEvent = { id: 'evt-' + Date.now(), nombre: document.getElementById('evento-nombre').value, fecha: document.getElementById('evento-fecha').value, fases: JSON.parse(JSON.stringify(checklistTemplate)) }; Object.values(newEvent.fases).flat().forEach(t => t.id = Date.now() + Math.random()); state.eventos.push(newEvent); saveState(); render(); closeModal(modals.evento); document.getElementById('form-evento').reset(); });
+        document.getElementById('btn-add-evento').addEventListener('click', () => { document.getElementById('form-evento').reset(); openModal(modals.evento); });
+        document.getElementById('btn-add-miembro').addEventListener('click', () => { document.getElementById('form-miembro').reset(); document.getElementById('miembro-id').value = ''; document.getElementById('modal-miembro-title').innerText = 'Añadir Miembro'; openModal(modals.miembro); });
+        document.getElementById('form-miembro').addEventListener('submit', e => { e.preventDefault(); const id = document.getElementById('miembro-id').value; const nombre = document.getElementById('miembro-nombre').value; if(id) { state.equipo.find(m => m.id == id).nombre = nombre; } else { state.equipo.push({ id: Date.now(), nombre }); } saveState(); render(); closeModal(modals.miembro); });
+        document.querySelectorAll('.tab-link').forEach(link => link.addEventListener('click', () => { const id = link.dataset.tab; document.querySelectorAll('.tab-link, .tab-content').forEach(el => el.classList.remove('active')); link.classList.add('active'); document.getElementById(id).classList.add('active'); if(id === 'cronograma') app.renderCalendar(); }));
+        
+        document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); app.renderCalendar(); });
+        document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); app.renderCalendar(); });
+        
+        document.getElementById('btn-download-tareas-persona').addEventListener('click', () => { const data = state.eventos.flatMap(e => app.getAllTasks(e).map(t => ({ "Responsables": app.getMiembrosNombres(t.responsables), "Evento": e.nombre, "Fase": Object.keys(e.fases).find(k => e.fases[k].some(x => x.id === t.id)), "Tarea": t.texto, "Fecha Límite": t.fecha, "Estado": t.completado ? "Completado" : "Pendiente" }))); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tareas"); XLSX.writeFile(wb, "Reporte_Tareas_por_Persona.xlsx"); });
+        document.getElementById('btn-download-avance-evento').addEventListener('click', () => { const data = state.eventos.map(e => { const { total, completadas } = app.getEventProgress(e); return { "Evento": e.nombre, "Fecha Inicio": e.fecha, "Total Tareas": total, "Completadas": completadas, "Avance (%)": total > 0 ? ((completadas / total) * 100).toFixed(2) : 0 }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Avance"); XLSX.writeFile(wb, "Reporte_Avance_por_Evento.xlsx"); });
+        document.getElementById('btn-download-estado-general').addEventListener('click', () => { const wb = XLSX.utils.book_new(); state.eventos.forEach(e => { const data = app.getAllTasks(e).map(t => ({ "Fase": Object.keys(e.fases).find(k => e.fases[k].some(x => x.id === t.id)), "Tarea": t.texto, "Fecha Límite": t.fecha, "Estado": t.completado ? "Completado" : "Pendiente", "Responsables": app.getMiembrosNombres(t.responsables) })); const ws = XLSX.utils.json_to_sheet(data); XLSX.utils.book_append_sheet(wb, ws, e.nombre.substring(0, 30)); }); XLSX.writeFile(wb, "Reporte_General_Eventos.xlsx"); });
+        
+        document.getElementById('btn-export-data').addEventListener('click', () => { const dataStr = JSON.stringify(state, null, 2); const dataBlob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = 'proyecto_backup.json'; link.click(); URL.revokeObjectURL(url); });
+        document.getElementById('import-file-input').addEventListener('change', (event) => { const file = event.target.files[0]; if (file && confirm("¿Importar archivo? Se sobreescribirán todos los datos actuales.")) { const reader = new FileReader(); reader.onload = (e) => { try { const imported = JSON.parse(e.target.result); if (imported.eventos && imported.equipo) { Object.assign(state, { eventos: [], equipo: [] }); loadState(); Object.assign(state, imported); saveState(); render(); alert("¡Datos importados con éxito!"); } else { throw new Error("Formato inválido."); } } catch (err) { alert("Error: " + err.message); } }; reader.readAsText(file); } event.target.value = ''; });
+    
+        // INICIALIZACIÓN
+        loadState();
+        render();
+        window.app = app;
+    });
+
+    // 🔁 Restaurar estado predeterminado
+const resetApp = () => {
+    if (confirm('¿Estás seguro de que deseas restaurar la aplicación? Esta acción borrará todos los datos.')) {
+        localStorage.removeItem('projectManagementState_v8');
+        location.reload();
+    }
+};
+
+// 👀 Consultar estado actual (útil para depuración)
+const verEstado = () => {
+    const estadoActual = JSON.parse(localStorage.getItem('projectManagementState_v8'));
+    console.log('Estado actual:', estadoActual);
+};
+
+</script>
+
+</body>
+</html>
