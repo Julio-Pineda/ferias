@@ -32,6 +32,38 @@
         .tab-content.active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* Styles for Project Type Tabs */
+        .project-type-tabs-nav { 
+            display: flex;
+            justify-content: center;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .project-type-tab-link { 
+            padding: 0.75rem 1.2rem;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-background);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--light-text-color);
+            transition: all 0.2s ease;
+        }
+        .project-type-tab-link:hover {
+            background-color: #e9ecef;
+            color: var(--primary-color);
+        }
+        .project-type-tab-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+
         .card { background: var(--card-background); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; overflow: hidden; }
         .card-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background-color: #fafafa; }
         .card-header h3 { font-size: 1.5rem; color: var(--primary-color); display: flex; align-items: center; gap: 0.75rem; }
@@ -52,8 +84,8 @@
         th { background-color: #f8f9fa; font-weight: 600; }
         td.actions { display: flex; gap: 0.5rem; align-items: center; }
 
-        .event-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem; }
-        .event-card-item { background: var(--card-background); border-radius: 22px; box-shadow: var(--shadow); display: flex; flex-direction: column; border: 1px lightgray solid;}
+        .event-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem;}
+        .event-card-item { background: var(--card-background); border-radius: 22px; box-shadow: var(--shadow); display: flex; flex-direction: column;  border: 1px lightgray solid;}
         .event-card-item-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .event-card-item-header h4 { color: var(--primary-color); cursor: pointer; transition: background-color 0.2s; padding: 5px; border-radius: 4px; width: calc(100% - 40px); }
         .event-card-item-header h4:hover { background-color: #f0f2f5; }
@@ -65,8 +97,9 @@
         .event-card-info { font-size: 0.9rem; color: var(--light-text-color); }
         .responsables-list { list-style: none; font-size: 0.9rem; margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 5px;}
         .responsables-list span { background-color: var(--border-color); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
-        .event-card-item-footer { padding: 1rem; border-top: 1px solid var(--border-color); text-align: right; }
+        .event-card-item-footer { padding: 1rem; border-top: 1px solid var(--border-color); text-align: right; display: flex; justify-content: flex-end; gap: 0.5rem; }
         .btn-manage { background-color: var(--success-color); color: white; }
+        .btn-edit-details { background-color: var(--primary-color); color: white; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 2rem; border-radius: 8px; max-width: 90%; width: 900px; position: relative; animation: slideIn 0.3s; }
@@ -75,7 +108,7 @@
         .modal-content h3 { margin-bottom: 1.5rem; color: var(--primary-color); }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; }
 
         #checklist-container { max-height: 60vh; overflow-y: auto; padding-right: 1rem; }
         .checklist-phase h4 { margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-color); }
@@ -104,6 +137,20 @@
         .day-number { font-weight: bold; }
         .day-tasks-badge { position: absolute; bottom: 8px; right: 8px; background-color: var(--secondary-color); color: var(--primary-color); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; }
         .calendar-day.has-tasks { cursor: pointer; background-color: #fffac3; }
+        .calendar-day.event-start-day { 
+            background-color: #ffe0e6; /* Light red/pink background */
+            border: 2px solid var(--danger-color); /* Red border */
+        }
+        .calendar-day.event-start-day::after {
+            content: "\f144"; /* Unicode for fa-play-circle */
+            font-family: "Font Awesome 6 Free"; /* Font Awesome family */
+            font-weight: 900; /* For solid icon */
+            color: var(--danger-color);
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 1.2rem;
+        }
         #day-tasks-list li { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--border-color); list-style: none;}
         p { margin-bottom: 1.2rem; }
 
@@ -150,6 +197,11 @@
 
     <!-- MÓDULO 2: GESTIÓN DE EVENTOS -->
     <div id="gestion" class="tab-content">
+        <!-- Project Type Tabs for Event Classification -->
+        <div class="project-type-tabs-nav" id="event-project-type-nav">
+            <!-- Project Type buttons will be rendered here dynamically by JS -->
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <h3><i class="fas fa-clipboard-list" style="color:var(--success-color);"></i> Eventos del proyecto</h3>
@@ -182,7 +234,10 @@
         <div class="card">
             <div class="card-header">
                 <h3><i class="fas fa-users-cog" style="color:#6f42c1;"></i> Miembros del equipo</h3>
-                <button class="btn btn-primary" id="btn-add-miembro"><i class="fas fa-user-plus"></i> Añadir miembro</button>
+                <div>
+                    <button class="btn btn-primary" id="btn-add-miembro"><i class="fas fa-user-plus"></i> Añadir miembro</button>
+                    <button class="btn btn-primary" id="btn-bulk-add-miembro"><i class="fas fa-users"></i> Carga masiva</button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive" id="equipo-table-container">
@@ -254,12 +309,12 @@
 <!-- MODALES -->
 <div id="modal-checklist" class="modal"><div class="modal-content"><span class="close-btn">&times;</span><h3 id="checklist-title"></h3><div id="checklist-container"></div></div></div>
 <div id="modal-miembro" class="modal"><div class="modal-content" style="width: 500px;"><span class="close-btn">&times;</span><h3 id="modal-miembro-title"></h3><form id="form-miembro"><input type="hidden" id="miembro-id"><div class="form-group"><label for="miembro-nombre">Nombre del Miembro</label><input type="text" id="miembro-nombre" required></div><button type="submit" class="btn btn-primary">Guardar</button></form></div></div>
-<div id="modal-evento" class="modal"><div class="modal-content" style="width: 500px;"><span class="close-btn">&times;</span><h3>Crear Nuevo Evento</h3><form id="form-evento"><div class="form-group"><label for="evento-nombre">Nombre del Evento</label><input type="text" id="evento-nombre" placeholder="Ej: Feria Subregional Popayán" required></div><div class="form-group"><label for="evento-fecha">Fecha de Inicio</label><input type="date" id="evento-fecha" required></div><button type="submit" class="btn btn-primary">Crear Evento</button></form></div></div>
+<div id="modal-evento" class="modal"><div class="modal-content" style="width: 500px;"><span class="close-btn">&times;</span><h3>Crear Nuevo Evento</h3><form id="form-evento"><div class="form-group"><label for="evento-nombre">Nombre del Evento</label><input type="text" id="evento-nombre" placeholder="Ej: Feria Subregional Popayán" required></div><div class="form-group"><label for="evento-fecha-inicio">Fecha de Inicio</label><input type="date" id="evento-fecha-inicio" required></div><div class="form-group"><label for="evento-fecha-fin">Fecha de Fin</label><input type="date" id="evento-fecha-fin" required></div><div class="form-group"><label for="evento-proyecto-tipo">Tipo de Proyecto</label><input type="text" id="evento-proyecto-tipo" list="proyecto-tipos-list" placeholder="Ej: Ferias, Talleres, Internos" required><datalist id="proyecto-tipos-list"></datalist></div><button type="submit" class="btn btn-primary">Crear Evento</button></form></div></div>
+<div id="modal-edit-evento" class="modal"><div class="modal-content" style="width: 500px;"><span class="close-btn">&times;</span><h3 id="edit-evento-title">Editar Evento</h3><form id="form-edit-evento"><input type="hidden" id="edit-evento-id"><div class="form-group"><label for="edit-evento-nombre">Nombre del Evento</label><input type="text" id="edit-evento-nombre" required></div><div class="form-group"><label for="edit-evento-fecha-inicio">Fecha de Inicio</label><input type="date" id="edit-evento-fecha-inicio" required></div><div class="form-group"><label for="edit-evento-fecha-fin">Fecha de Fin</label><input type="date" id="edit-evento-fecha-fin" required></div><div class="form-group"><label for="edit-evento-proyecto-tipo">Tipo de Proyecto</label><input type="text" id="edit-evento-proyecto-tipo" list="proyecto-tipos-list-edit" required><datalist id="proyecto-tipos-list-edit"></datalist></div><button type="submit" class="btn btn-primary">Guardar Cambios</button></form></div></div>
 <div id="modal-responsables" class="modal"><div class="modal-content" style="width: 400px;"><span class="close-btn">&times;</span><h3>Asignar Responsables</h3><div id="responsables-checkbox-container"></div><div style="text-align: right; margin-top: 1rem;"><button id="btn-save-responsables" class="btn btn-primary">Guardar</button></div></div></div>
 <div id="modal-day-tasks" class="modal"><div class="modal-content" style="width: 600px;"><span class="close-btn">&times;</span><h3 id="day-tasks-title"></h3><ul id="day-tasks-list"></ul></div></div>
 <div id="modal-finanzas" class="modal"><div class="modal-content"><span class="close-btn">&times;</span><h3 id="finanzas-title">Gestión de Pagos para: [Nombre]</h3><div class="finanzas-container"><div class="finanzas-section"><h4><i class="fas fa-file-invoice-dollar"></i> Honorarios</h4><div class="pagos-list" id="honorarios-list"></div><form class="add-pago-form" onsubmit="event.preventDefault(); app.handleAddPago('honorarios');"><div class="form-group"><label>Concepto</label><input type="text" id="honorario-concepto" placeholder="Ej: Pago mes de Mayo" required></div><div class="form-group"><label>Valor</label><input type="number" id="honorario-valor" placeholder="Ej: 1500000" required></div><div class="form-group"><label>Fecha Inicio</label><input type="date" id="honorario-fechaInicio" required></div><div class="form-group"><label>Fecha Fin</label><input type="date" id="honorario-fechaFin" required></div><button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Añadir Honorario</button></form></div><div class="finanzas-section"><h4><i class="fas fa-route"></i> Desplazamientos</h4><div class="pagos-list" id="desplazamientos-list"></div><form class="add-pago-form" onsubmit="event.preventDefault(); app.handleAddPago('desplazamientos');"><div class="form-group"><label>Concepto</label><input type="text" id="desplazamiento-concepto" placeholder="Ej: Viaje a Popayán" required></div><div class="form-group"><label>Valor</label><input type="number" id="desplazamiento-valor" placeholder="Ej: 80000" required></div><div class="form-group"><label>Fecha Inicio</label><input type="date" id="desplazamiento-fechaInicio" required></div><div class="form-group"><label>Fecha Fin</label><input type="date" id="desplazamiento-fechaFin" required></div><button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Añadir Desplazamiento</button></form></div></div></div></div>
 
-<!-- NUEVO MODAL PARA EDITAR PAGOS -->
 <div id="modal-edit-pago" class="modal">
     <div class="modal-content" style="width: 500px;">
         <span class="close-btn">&times;</span>
@@ -288,15 +343,37 @@
     </div>
 </div>
 
+<!-- NUEVO MODAL PARA CARGA MASIVA DE MIEMBROS -->
+<div id="modal-bulk-miembro" class="modal">
+    <div class="modal-content" style="width: 500px;">
+        <span class="close-btn">&times;</span>
+        <h3>Carga Masiva de Miembros de Equipo</h3>
+        <p>Introduce un nombre por línea. Cada línea se convertirá en un nuevo miembro del equipo.</p>
+        <div class="form-group">
+            <label for="bulk-miembro-names">Nombres de Miembros</label>
+            <textarea id="bulk-miembro-names" rows="10" placeholder="Ejemplo:&#10;Juan Pérez&#10;María García&#10;Carlos Ruiz"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-save-bulk-miembros">Añadir Miembros</button>
+    </div>
+</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- 1. STATE AND CONFIGURATION ---
-        const state = { eventos: [], equipo: [] };
+        const state = {
+            eventos: [],
+            equipo: [],
+            // Default project types for the creation dropdown.
+            // These will be combined with existing event project types for the dropdown options.
+            // eventProjectTypes: ['Ferias', 'Talleres', 'Capacitaciones', 'Internos', 'Comercialización', 'Otros'] 
+            eventProjectTypes: ['Ferias'] 
+        };
         const charts = {};
         const app = {};
         let currentCalendarDate = new Date();
         let currentMiembroIdFinanzas = null;
+        let currentEventProjectTypeFilter = 'all'; // Default filter for events ('all' means show all project types)
         const emptyStateMsg = (msg) => `<div class="empty-state">${msg}</div>`;
         const checklistTemplate = {
             planeacion: [
@@ -316,7 +393,7 @@
                 { id: 10, texto: 'Recopilar encuestas de satisfacción', completado: false, responsables: [], fechaInicio: '', fechaFin: '' },
                 { id: 11, texto: 'Consolidar base de datos de asistentes/contactos', completado: false, responsables: [], fechaInicio: '', fechaFin: '' },
             ],
-            legalizacion: [
+            otros: [
                 { id: 12, texto: 'Elaborar informe final del evento', completado: false, responsables: [], fechaInicio: '', fechaFin: '' },
                 { id: 13, texto: 'Gestionar pagos a proveedores y personal', completado: false, responsables: [], fechaInicio: '', fechaFin: '' },
                 { id: 14, texto: 'Archivar toda la documentación y soportes', completado: false, responsables: [], fechaInicio: '', fechaFin: '' },
@@ -324,7 +401,7 @@
         };
 
         // --- 2. MODALS AND UTILITIES ---
-        app.modals = { checklist: document.getElementById('modal-checklist'), miembro: document.getElementById('modal-miembro'), evento: document.getElementById('modal-evento'), responsables: document.getElementById('modal-responsables'), dayTasks: document.getElementById('modal-day-tasks'), finanzas: document.getElementById('modal-finanzas'), editPago: document.getElementById('modal-edit-pago') };
+        app.modals = { checklist: document.getElementById('modal-checklist'), miembro: document.getElementById('modal-miembro'), evento: document.getElementById('modal-evento'), editEvento: document.getElementById('modal-edit-evento'), responsables: document.getElementById('modal-responsables'), dayTasks: document.getElementById('modal-day-tasks'), finanzas: document.getElementById('modal-finanzas'), editPago: document.getElementById('modal-edit-pago'), bulkMiembro: document.getElementById('modal-bulk-miembro') };
         app.openModal = (modal) => modal.style.display = 'block';
         app.closeModal = (modal) => modal.style.display = 'none';
         
@@ -335,29 +412,67 @@
         app.getSemaforoColor = (v) => v === 100 ? 'var(--full-color)' : v >= 67 ? 'var(--success-color)' : v >= 34 ? 'var(--warning-color)' : 'var(--danger-color)';
         app.formatCurrency = (value) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value);
         app.formatDateTime = (dt) => dt ? new Date(dt).toLocaleString('es-CO', {hour12: true, year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : 'N/A';
+        app.formatDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+
 
         // --- 3. DATA PERSISTENCE & CALCULATIONS ---
         app.loadState = () => {
-            let loadedState = JSON.parse(localStorage.getItem('projectManagementState_v11')) || { 
+            // Using v14 for localStorage key to ensure proper migration
+            let loadedState = JSON.parse(localStorage.getItem('projectManagementState_v14')) || { 
                 equipo: [
                     { id: Date.now(), nombre: 'Coordinación de Proyecto' },
                     ...['Andres Felipe Samboni Perez', 'Daniela Alejandra Mera Lopez', 'Daniela Popo Choco', 'Javier Mariano Mera Rivera', 'Jose Sebastian Restrepo Muñoz', 'Juan Diego Aza Arcos', 'José Fernando Ruíz López', 'Luz Elena Laverde Urrea', 'Manuel Vicente Córdoba Martinez', 'María Fernanda Montenegro Mera', 'María Inés Sánchez', 'Sindy Paola Zuñiga Arrechea'].map((nombre, i) => ({ id: Date.now() + i + 1, nombre }))
                 ],
-                eventos: []
+                eventos: [],
+                eventProjectTypes: state.eventProjectTypes // Default project types for a new app
             };
-            // Data migration and ensuring properties exist
+
+            // Ensure eventProjectTypes exist and has a default value if missing or empty
+            if (!loadedState.eventProjectTypes || loadedState.eventProjectTypes.length === 0) {
+                loadedState.eventProjectTypes = state.eventProjectTypes; 
+            } else {
+                // Merge loaded project types with default ones to ensure all common types are available
+                loadedState.eventProjectTypes = Array.from(new Set([...state.eventProjectTypes, ...loadedState.eventProjectTypes]));
+            }
+            
+            // Data migration for 'equipo' and 'pagos'
             loadedState.equipo.forEach(miembro => {
                 if (!miembro.honorarios) miembro.honorarios = [];
                 if (!miembro.desplazamientos) miembro.desplazamientos = [];
                 [...miembro.honorarios, ...miembro.desplazamientos].forEach(pago => {
+                    // Migrates single 'fecha' to 'fechaInicio' and 'fechaFin' for payments
                     if(pago.fecha && pago.fechaInicio === undefined) {
                         pago.fechaInicio = pago.fecha;
                         pago.fechaFin = pago.fecha;
                         delete pago.fecha;
                     }
+                    if (pago.fechaInicio === undefined) pago.fechaInicio = ''; 
+                    if (pago.fechaFin === undefined) pago.fechaFin = '';     
                 });
             });
+
+            // Data migration for 'eventos'
             loadedState.eventos.forEach(evento => {
+                // Migrate event dates: rename 'fecha' to 'fechaInicio', add 'fechaFin'
+                if (evento.fecha && evento.fechaInicio === undefined) { // Check for old 'fecha' field
+                    evento.fechaInicio = evento.fecha;
+                    delete evento.fecha;
+                }
+                if (evento.fechaInicio === undefined) evento.fechaInicio = ''; 
+                if (evento.fechaFin === undefined) { 
+                    evento.fechaFin = ''; 
+                }
+
+                // Migrate event project type (formerly category)
+                if (evento.category !== undefined && evento.projectType === undefined) { // If old 'category' exists but new 'projectType' doesn't
+                    evento.projectType = evento.category;
+                    delete evento.category;
+                }
+                if (evento.projectType === undefined) { // Ensure projectType exists
+                    evento.projectType = 'Otros'; 
+                }
+
+                // Migrate task responsibles and dates
                 app.getAllTasks(evento).forEach(tarea => {
                     if (tarea.responsable && !Array.isArray(tarea.responsables)) {
                         tarea.responsables = tarea.responsable ? [String(tarea.responsable)] : [];
@@ -366,14 +481,16 @@
                     if (!tarea.responsables) tarea.responsables = [];
                     if (tarea.fecha && !tarea.fechaInicio) {
                         tarea.fechaInicio = tarea.fecha;
-                        tarea.fechaFin = '';
+                        tarea.fechaFin = ''; 
                         delete tarea.fecha;
                     }
+                    if (tarea.fechaInicio === undefined) tarea.fechaInicio = '';
+                    if (tarea.fechaFin === undefined) tarea.fechaFin = '';
                 });
             });
             Object.assign(state, loadedState);
         };
-        app.saveState = () => localStorage.setItem('projectManagementState_v11', JSON.stringify(state));
+        app.saveState = () => localStorage.setItem('projectManagementState_v14', JSON.stringify(state)); 
 
         app.calculateAnalytics = () => {
             let totalTasks = 0, completedTasks = 0;
@@ -412,7 +529,8 @@
         // --- 4. RENDER FUNCTIONS (VIEWS) ---
         app.render = () => { 
             app.renderCharts(); 
-            app.renderEventGrid(); 
+            app.renderProjectTabs(); // Render project type tabs
+            app.renderEventGrid(currentEventProjectTypeFilter); // Pass filter to event grid
             app.renderEquipoTable(); 
             app.renderCalendar(); 
             app.renderFinanzasTable();
@@ -431,19 +549,100 @@
             charts.personas = new Chart(document.getElementById('personasChart').getContext('2d'), {type: 'bar', data: { labels: data.byPerson.labels, datasets: [ { label: 'Completadas', data: data.byPerson.completadas, backgroundColor: '#28a745'}, { label: 'Pendientes', data: data.byPerson.pendientes, backgroundColor: '#dc3545'} ] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { legend: { position: 'top' } } }});
         };
         
-        app.renderEventGrid = () => {
+        app.renderProjectTabs = () => { 
+            const projectTypeNav = document.getElementById('event-project-type-nav');
+            const projectTypeListCreate = document.getElementById('proyecto-tipos-list'); // Datalist for new event
+            const projectTypeListEdit = document.getElementById('proyecto-tipos-list-edit'); // Datalist for edit event
+            
+            projectTypeNav.innerHTML = '';
+            projectTypeListCreate.innerHTML = ''; 
+            projectTypeListEdit.innerHTML = ''; 
+
+            // Get all unique project types from existing events
+            const existingProjectTypes = new Set(state.eventos.map(e => e.projectType).filter(Boolean));
+            // Combine with predefined project types and convert to sorted array
+            const allProjectTypes = Array.from(new Set([...state.eventProjectTypes, ...existingProjectTypes])).sort();
+
+            // Add 'Todos' button for filter
+            const allBtn = document.createElement('button');
+            allBtn.className = `project-type-tab-link ${currentEventProjectTypeFilter === 'all' ? 'active' : ''}`;
+            allBtn.dataset.projectType = 'all';
+            allBtn.textContent = 'Todos';
+            allBtn.addEventListener('click', () => {
+                currentEventProjectTypeFilter = 'all';
+                app.renderEventGrid(currentEventProjectTypeFilter);
+                app.renderProjectTabs(); 
+            });
+            projectTypeNav.appendChild(allBtn);
+
+            // Render buttons for each project type and add options to the datalists
+            allProjectTypes.forEach(projectType => {
+                // For project type filter buttons
+                const btn = document.createElement('button');
+                btn.className = `project-type-tab-link ${currentEventProjectTypeFilter === projectType ? 'active' : ''}`;
+                btn.dataset.projectType = projectType;
+                btn.textContent = projectType;
+                btn.addEventListener('click', () => {
+                    currentEventProjectTypeFilter = projectType;
+                    app.renderEventGrid(currentEventProjectTypeFilter);
+                    app.renderProjectTabs(); 
+                });
+                projectTypeNav.appendChild(btn);
+
+                // For event creation modal datalist
+                const optionCreate = document.createElement('option');
+                optionCreate.value = projectType;
+                projectTypeListCreate.appendChild(optionCreate);
+
+                // For event edit modal datalist
+                const optionEdit = document.createElement('option');
+                optionEdit.value = projectType;
+                projectTypeListEdit.appendChild(optionEdit);
+            });
+        };
+
+        app.renderEventGrid = (projectTypeFilter = 'all') => { 
             const container = document.getElementById('event-grid-container');
-            if (state.eventos.length === 0) {
-                container.innerHTML = emptyStateMsg("No hay eventos creados. ¡Crea el primero para empezar!");
+            const filteredEvents = projectTypeFilter === 'all'
+                ? state.eventos
+                : state.eventos.filter(e => e.projectType === projectTypeFilter);
+
+            if (filteredEvents.length === 0) {
+                let msg = `No hay eventos en el tipo de proyecto "${projectTypeFilter}".`;
+                if (projectTypeFilter === 'all' && state.eventos.length === 0) {
+                    msg = "No hay eventos creados. ¡Crea el primero para empezar!";
+                }
+                container.innerHTML = emptyStateMsg(msg);
                 return;
             }
             container.innerHTML = '';
-            state.eventos.forEach(evento => {
+            filteredEvents.forEach(evento => { 
                 const { total, completadas } = app.getEventProgress(evento);
                 const avance = total > 0 ? Math.round((completadas / total) * 100) : 0;
                 const card = document.createElement('div');
                 card.className = 'event-card-item';
-                card.innerHTML = `<div class="event-card-item-header"><h4 onclick="app.handleEditEventNameClick(this, '${evento.id}')" title="Haz clic para editar">${evento.nombre}</h4><button class="btn btn-danger btn-sm" onclick="app.handleDeleteEvento('${evento.id}')"><i class="fas fa-trash"></i></button></div><div class="event-card-item-body"><div class="event-card-progress"><div class="progress-chart-container"><canvas id="progress-${evento.id}"></canvas><div class="progress-chart-text" style="color:${app.getSemaforoColor(avance)};">${avance}%</div></div><div class="event-card-info"><strong>Fecha Inicio:</strong> ${evento.fecha}<br><strong>Tareas:</strong> ${completadas}/${total}</div></div></div><div class="event-card-item-footer"><button class="btn btn-manage" onclick="app.renderChecklistModal('${evento.id}')"><i class="fas fa-edit"></i> Gestionar</button></div>`;
+                card.innerHTML = `<div class="event-card-item-header">
+                                    <h4 onclick="app.handleEditEventNameClick(this, '${evento.id}')" title="Haz clic para editar">${evento.nombre}</h4>
+                                    <button class="btn btn-danger btn-sm" onclick="app.handleDeleteEvento('${evento.id}')"><i class="fas fa-trash"></i></button>
+                                  </div>
+                                  <div class="event-card-item-body">
+                                    <div class="event-card-progress">
+                                        <div class="progress-chart-container">
+                                            <canvas id="progress-${evento.id}"></canvas>
+                                            <div class="progress-chart-text" style="color:${app.getSemaforoColor(avance)};">${avance}%</div>
+                                        </div>
+                                        <div class="event-card-info">
+                                            <strong>Fecha Inicio:</strong> ${app.formatDate(evento.fechaInicio)}<br>
+                                            <strong>Fecha Fin:</strong> ${app.formatDate(evento.fechaFin)}<br>
+                                            <strong>Tipo de Proyecto:</strong> ${evento.projectType || 'N/A'}<br>
+                                            <strong>Tareas:</strong> ${completadas}/${total}
+                                        </div>
+                                    </div>
+                                  </div>
+                                  <div class="event-card-item-footer">
+                                    <button class="btn btn-edit-details" onclick="app.handleEditEventDetails('${evento.id}')"><i class="fas fa-info-circle"></i> Editar Detalles</button>
+                                    <button class="btn btn-manage" onclick="app.renderChecklistModal('${evento.id}')"><i class="fas fa-edit"></i> Gestionar Tareas</button>
+                                  </div>`;
                 container.appendChild(card);
                 new Chart(document.getElementById(`progress-${evento.id}`).getContext('2d'), { type: 'doughnut', data: { datasets: [{ data: [avance, 100 - avance], backgroundColor: [app.getSemaforoColor(avance), '#e9ecef'], borderWidth: 0 }] }, options: { cutout: '70%', plugins: { tooltip: { enabled: false } } } });
             });
@@ -483,7 +682,7 @@
         app.renderChecklistModal = (eventoId) => {
             const evento = state.eventos.find(e => e.id === eventoId); 
             if (!evento) return;
-            document.getElementById('checklist-title').textContent = `Gestionar: ${evento.nombre}`;
+            document.getElementById('checklist-title').textContent = `Gestionar Tareas de: ${evento.nombre}`;
             const container = document.getElementById('checklist-container');
             container.innerHTML = '';
             for (const [fase, tareas] of Object.entries(evento.fases)) {
@@ -509,6 +708,113 @@
             app.openModal(app.modals.checklist);
         };
         
+        // app.renderCalendar = () => {
+        //     const grid = document.getElementById('calendar-grid');
+        //     const monthYearEl = document.getElementById('calendar-month-year');
+        //     grid.innerHTML = '';
+        //     const year = currentCalendarDate.getFullYear();
+        //     const month = currentCalendarDate.getMonth();
+        //     monthYearEl.textContent = `${currentCalendarDate.toLocaleString('es-ES', { month: 'long' })} ${year}`.toUpperCase();
+        //     const firstDay = new Date(year, month, 1).getDay();
+        //     const daysInMonth = new Date(year, month + 1, 0).getDate();
+        //     const tasksByDate = {};
+        //     const eventsStartingByDate = {}; // New object for event start dates
+
+        //     state.eventos.forEach(evento => {
+        //         // Add event start date to the calendar
+        //         const eventStartDate = evento.fechaInicio ? new Date(evento.fechaInicio.split('T')[0]) : null;
+        //         if (eventStartDate && !isNaN(eventStartDate.getTime()) && eventStartDate.getFullYear() === year && eventStartDate.getMonth() === month) {
+        //             const datePart = eventStartDate.toISOString().split('T')[0];
+        //             eventsStartingByDate[datePart] = true;
+        //         }
+
+        //         // Add tasks to the calendar
+        //         app.getAllTasks(evento).forEach(tarea => {
+        //             const startDate = tarea.fechaInicio ? new Date(tarea.fechaInicio.split('T')[0]) : null;
+        //             const endDate = tarea.fechaFin ? new Date(tarea.fechaFin.split('T')[0]) : null;
+
+        //             if (startDate && !isNaN(startDate.getTime())) { 
+        //                 let currentDatePointer = new Date(startDate);
+        //                 const endBoundary = endDate && !isNaN(endDate.getTime()) ? endDate.getTime() : startDate.getTime();
+
+        //                 while (currentDatePointer.getTime() <= endBoundary) {
+        //                     if (currentDatePointer.getFullYear() === year && currentDatePointer.getMonth() === month) {
+        //                         const datePart = currentDatePointer.toISOString().split('T')[0];
+        //                         if (!tasksByDate[datePart]) tasksByDate[datePart] = [];
+        //                         tasksByDate[datePart].push({ ...tarea, eventoNombre: evento.nombre });
+        //                     }
+        //                     currentDatePointer.setDate(currentDatePointer.getDate() + 1); 
+        //                 }
+        //             }
+        //         });
+        //     });
+        //     for (let i = 0; i < firstDay; i++) { grid.innerHTML += `<div class="calendar-day other-month"></div>`; }
+        //     for (let day = 1; day <= daysInMonth; day++) {
+        //         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        //         const dayEl = document.createElement('div');
+        //         dayEl.className = 'calendar-day';
+        //         dayEl.innerHTML = `<div class="day-number">${day}</div>`;
+                
+        //         // Add event start marker
+        //         if (eventsStartingByDate[dateStr]) {
+        //             dayEl.classList.add('event-start-day');
+        //         }
+
+        //         if (tasksByDate[dateStr]) {
+        //             dayEl.classList.add('has-tasks');
+        //             dayEl.innerHTML += `<div class="day-tasks-badge">${tasksByDate[dateStr].length}</div>`;
+        //             dayEl.onclick = () => app.showDayTasks(dateStr, tasksByDate[dateStr]);
+        //         }
+        //         grid.appendChild(dayEl);
+        //     }
+
+        // };
+
+
+        // Modificar app.showDayTasks a app.showDayDetails y su lógica
+        app.showDayDetails = (dateStr, tasks, events) => {
+            const dateObj = new Date(dateStr + 'T00:00:00');
+            document.getElementById('day-tasks-title').textContent = `Detalle del Día: ${dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+            const listEl = document.getElementById('day-tasks-list'); // Reusamos esta lista
+
+            let contentHtml = '';
+
+            // 1. Mostrar Eventos que inician en este día
+            if (events && events.length > 0) {
+                contentHtml += `<h4 style="color: var(--danger-color); margin-bottom: 0.5rem;"><i class="fas fa-play-circle"></i> Eventos que inician este día:</h4><ul style="list-style: none; padding: 0;">`;
+                events.forEach(event => {
+                    contentHtml += `<li>
+                                    <strong>${event.nombre}</strong><br>
+                                    <small><em>Tipo:</em> ${event.projectType || 'N/A'}</small><br>
+                                    <small><em>Inicio:</em> ${app.formatDate(event.fechaInicio)} | <em>Fin:</em> ${app.formatDate(event.fechaFin)}</small>
+                                  </li>`;
+                });
+                contentHtml += `</ul>`;
+                if (tasks && tasks.length > 0) { // Add a separator if there are also tasks
+                    contentHtml += `<hr style="margin: 1.5rem 0; border-top: 1px dashed var(--border-color);">`;
+                }
+            }
+
+            // 2. Mostrar Tareas para este día
+            if (tasks && tasks.length > 0) {
+                contentHtml += `<h4 style="color: var(--primary-color); margin-bottom: 0.5rem;"><i class="fas fa-tasks"></i> Tareas asignadas para este día:</h4><ul style="list-style: none; padding: 0;">`;
+                tasks.forEach(t => {
+                    contentHtml += `<li>
+                                    <strong>${t.texto}</strong><br>
+                                    <small><em>Evento:</em> ${t.eventoNombre}</small><br>
+                                    <small><em>Inicio:</em> ${app.formatDateTime(t.fechaInicio)} | <em>Fin:</em> ${app.formatDateTime(t.fechaFin)}</small><br>
+                                    <small><em>Responsables:</em> ${app.getMiembrosNombres(t.responsables) || 'Sin asignar'}</small>
+                                  </li>`;
+                });
+                contentHtml += `</ul>`;
+            } else if (!events || events.length === 0) { // Si no hay tareas ni eventos iniciando
+                 contentHtml += `<p style="text-align: center; color: var(--light-text-color); padding: 1.5rem 0;">No hay eventos que inicien ni tareas asignadas para este día.</p>`;
+            }
+
+            listEl.innerHTML = contentHtml;
+            app.openModal(app.modals.dayTasks); // Reutilizamos el modal existente
+        };
+
         app.renderCalendar = () => {
             const grid = document.getElementById('calendar-grid');
             const monthYearEl = document.getElementById('calendar-month-year');
@@ -519,12 +825,36 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const tasksByDate = {};
+            // Cambiar para almacenar los objetos de evento
+            const eventsStartingByDate = {}; 
+
             state.eventos.forEach(evento => {
+                // Add event start date to the calendar
+                const eventStartDate = evento.fechaInicio ? new Date(evento.fechaInicio.split('T')[0]) : null;
+                if (eventStartDate && !isNaN(eventStartDate.getTime()) && eventStartDate.getFullYear() === year && eventStartDate.getMonth() === month) {
+                    const datePart = eventStartDate.toISOString().split('T')[0];
+                    if (!eventsStartingByDate[datePart]) eventsStartingByDate[datePart] = []; // Inicializar como array
+                    eventsStartingByDate[datePart].push(evento); // Almacenar el objeto evento
+                }
+
+                // Add tasks to the calendar
                 app.getAllTasks(evento).forEach(tarea => {
-                    if (tarea.fechaInicio) {
-                        const datePart = tarea.fechaInicio.split('T')[0];
-                        if (!tasksByDate[datePart]) tasksByDate[datePart] = [];
-                        tasksByDate[datePart].push({ ...tarea, eventoNombre: evento.nombre });
+                    const startDate = tarea.fechaInicio ? new Date(tarea.fechaInicio.split('T')[0]) : null;
+                    const endDate = tarea.fechaFin ? new Date(tarea.fechaFin.split('T')[0]) : null;
+
+                    if (startDate && !isNaN(startDate.getTime())) { 
+                        let currentDatePointer = new Date(startDate);
+                        const endBoundary = endDate && !isNaN(endDate.getTime()) ? endDate.getTime() : startDate.getTime();
+
+                        // Loop through each day from start to end of task, checking if it's in the current month
+                        while (currentDatePointer.getTime() <= endBoundary) {
+                            if (currentDatePointer.getFullYear() === year && currentDatePointer.getMonth() === month) {
+                                const datePart = currentDatePointer.toISOString().split('T')[0];
+                                if (!tasksByDate[datePart]) tasksByDate[datePart] = [];
+                                tasksByDate[datePart].push({ ...tarea, eventoNombre: evento.nombre });
+                            }
+                            currentDatePointer.setDate(currentDatePointer.getDate() + 1); 
+                        }
                     }
                 });
             });
@@ -534,14 +864,35 @@
                 const dayEl = document.createElement('div');
                 dayEl.className = 'calendar-day';
                 dayEl.innerHTML = `<div class="day-number">${day}</div>`;
-                if (tasksByDate[dateStr]) {
+                
+                const isEventStartDate = eventsStartingByDate[dateStr] && eventsStartingByDate[dateStr].length > 0;
+                const hasTasks = tasksByDate[dateStr] && tasksByDate[dateStr].length > 0;
+
+                // Añadir marcador de inicio de evento
+                if (isEventStartDate) {
+                    dayEl.classList.add('event-start-day');
+                }
+
+                // Añadir burbuja de tareas (y la 'x' si también es inicio de evento)
+                if (hasTasks) {
                     dayEl.classList.add('has-tasks');
-                    dayEl.innerHTML += `<div class="day-tasks-badge">${tasksByDate[dateStr].length}</div>`;
-                    dayEl.onclick = () => app.showDayTasks(dateStr, tasksByDate[dateStr]);
+                    let badgeContent = `${tasksByDate[dateStr].length}`;
+                    if (isEventStartDate) { // Si el día también es inicio de evento, añadir la 'x'
+                        badgeContent += ` <i class="fas fa-times"></i>`; // Ícono 'x'
+                    }
+                    dayEl.innerHTML += `<div class="day-tasks-badge">${badgeContent}</div>`;
+                }
+
+                // Hacer el día clicable si tiene tareas o eventos iniciando
+                if (hasTasks || isEventStartDate) {
+                    dayEl.style.cursor = 'pointer'; // Indicar que es clicable
+                    // Usar la nueva función showDayDetails
+                    dayEl.onclick = () => app.showDayDetails(dateStr, tasksByDate[dateStr] || [], eventsStartingByDate[dateStr] || []);
                 }
                 grid.appendChild(dayEl);
             }
         };
+
 
         app.renderPagosList = (miembro, tipo, containerId) => {
             const container = document.getElementById(containerId);
@@ -555,7 +906,7 @@
             container.innerHTML = header + miembro[tipo].map(pago => `
                 <div class="pago-item" data-pago-id="${pago.id}">
                     <span>${pago.concepto || 'Sin concepto'}</span>
-                    <span>${pago.fechaInicio || 'N/A'} al ${pago.fechaFin || 'N/A'}</span>
+                    <span>${app.formatDate(pago.fechaInicio)} al ${app.formatDate(pago.fechaFin)}</span>
                     <span>${app.formatCurrency(pago.valor)}</span>
                     <div class="pago-actions">
                         <button class="btn btn-warning btn-sm" onclick="app.handleEditPago('${tipo}', ${pago.id})"><i class="fas fa-edit"></i></button>
@@ -586,7 +937,7 @@
         app.handleToggleTask = (eId, f, tId) => { const t = state.eventos.find(e => e.id === eId).fases[f].find(x => x.id == tId); t.completado = !t.completado; app.saveState(); app.render(); document.querySelector(`.checklist-task[data-task-id='${tId}']`).classList.toggle('completed', t.completado); };
         app.handleEditTaskText = (eId, f, tId, txt) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).texto = txt; app.saveState(); };
         app.handleEditTaskDate = (eId, f, tId, tipoFecha, date) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId)[tipoFecha] = date; app.saveState(); app.render(); };
-        app.handleEditEventNameClick = (h4Element, eventoId) => {const originalName = h4Element.textContent.trim();h4Element.innerHTML = ''; const input = document.createElement('input');input.type = 'text';input.value = originalName;input.className = 'inline-edit-input';const save = () => {const newName = input.value.trim();if (newName && newName !== originalName) {app.handleSaveEventName(eventoId, newName);} else {h4Element.textContent = originalName;}};input.addEventListener('blur', save);input.addEventListener('keydown', (e) => {if (e.key === 'Enter') {input.blur();} else if (e.key === 'Escape') {h4Element.textContent = originalName;}});h4Element.appendChild(input);input.focus();input.select();};
+        app.handleEditEventNameClick = (h4Element, eventoId) => {const originalName = h4Element.textContent.trim();h4Element.innerHTML = ''; const input = document.createElement('input');input.type = 'text';input.value = originalName;input.className = 'inline-edit-input';const save = () => {const newName = input.value.trim();if (newName && newName !== originalName) {app.handleSaveEventName(eventoId, newName);} else {h4Element.textContent = originalName;}};input.addEventListener('blur', save);input.addEventListener('keydown', (e) => {if (e.key === 'Enter') {input.blur();} else if (e.key === 'Escape') {h4Element.textContent = originalName; h4Element.focus();}});h4Element.appendChild(input);input.focus();input.select();};
         app.handleSaveEventName = (eventoId, newName) => {const evento = state.eventos.find(e => e.id === eventoId);if (evento) {evento.nombre = newName;app.saveState();app.render();}};
         app.handleDeleteEvento = (id) => { if(confirm('¿Seguro que desea eliminar este evento?')) { state.eventos = state.eventos.filter(e => e.id !== id); app.saveState(); app.render(); } };
         
@@ -621,19 +972,20 @@
             const fechaInicio = fechaInicioInput.value;
             const fechaFin = fechaFinInput.value;
 
-            if (!valor || !fechaInicio || !fechaFin) { alert('El valor y ambas fechas son obligatorios.'); return; }
+            if (!concepto || !valor || !fechaInicio || !fechaFin) { alert('El concepto, valor y ambas fechas son obligatorios.'); return; }
             if (new Date(fechaFin) < new Date(fechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; }
 
             miembro[tipo].push({ id: Date.now(), concepto, valor: parseFloat(valor), fechaInicio, fechaFin });
             app.saveState();
             
+            // Clear form inputs
             conceptoInput.value = '';
             valorInput.value = '';
             fechaInicioInput.value = '';
             fechaFinInput.value = '';
             
             app.renderPagosList(miembro, tipo, `${tipo}-list`);
-            app.renderFinanzasTable();
+            app.renderFinanzasTable(); 
         };
 
         app.handleDeletePago = (tipo, pagoId) => {if (!currentMiembroIdFinanzas) return;const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas);miembro[tipo] = miembro[tipo].filter(p => p.id !== pagoId);app.saveState();app.renderPagosList(miembro, tipo, `${tipo}-list`);app.renderFinanzasTable();};
@@ -653,6 +1005,21 @@
             
             app.openModal(app.modals.editPago);
         };
+
+        // NEW: Handle Edit Event Details
+        app.handleEditEventDetails = (eventoId) => {
+            const evento = state.eventos.find(e => e.id === eventoId);
+            if (!evento) return;
+
+            document.getElementById('edit-evento-id').value = evento.id;
+            document.getElementById('edit-evento-nombre').value = evento.nombre;
+            document.getElementById('edit-evento-fecha-inicio').value = evento.fechaInicio;
+            document.getElementById('edit-evento-fecha-fin').value = evento.fechaFin;
+            document.getElementById('edit-evento-proyecto-tipo').value = evento.projectType; // Set current project type
+            
+            app.renderProjectTabs(); // Re-render datalist for editing
+            app.openModal(app.modals.editEvento);
+        };
         
         app.handleDownloadIndividualReport = (miembroId) => {
             const miembro = state.equipo.find(m => m.id == miembroId);
@@ -667,16 +1034,135 @@
             XLSX.writeFile(wb, `Reporte_Financiero_${miembro.nombre.replace(/ /g, '_')}.xlsx`);
         };
 
+        // NEW: Handle Bulk Add Members
+        app.handleBulkAddMiembros = () => {
+            const textarea = document.getElementById('bulk-miembro-names');
+            const names = textarea.value.split('\n').map(name => name.trim()).filter(Boolean); // Split, trim, filter empty lines
+
+            if (names.length === 0) {
+                alert('Por favor, ingrese al menos un nombre.');
+                return;
+            }
+
+            let newMembersAdded = 0;
+            const existingNames = new Set(state.equipo.map(m => m.nombre.toLowerCase()));
+
+            names.forEach(name => {
+                if (!existingNames.has(name.toLowerCase())) {
+                    state.equipo.push({ id: Date.now() + Math.random(), nombre: name, honorarios: [], desplazamientos: [] });
+                    newMembersAdded++;
+                }
+            });
+
+            if (newMembersAdded > 0) {
+                app.saveState();
+                app.render();
+                alert(`Se añadieron ${newMembersAdded} nuevos miembros.`);
+                textarea.value = ''; // Clear textarea
+                app.closeModal(app.modals.bulkMiembro);
+            } else {
+                alert('No se añadieron nuevos miembros. Es posible que ya existan en la lista.');
+            }
+        };
+
         // --- 6. EVENT LISTENERS BINDING ---
         Object.values(app.modals).forEach(modal => { if (modal) { modal.querySelector('.close-btn').addEventListener('click', () => app.closeModal(modal)); modal.addEventListener('click', (e) => { if (e.target === modal) app.closeModal(modal); }); }});
         
         document.querySelectorAll('.tab-link').forEach(link => link.addEventListener('click', app.handleTabClick));
         
-        document.getElementById('btn-add-evento').addEventListener('click', () => { document.getElementById('form-evento').reset(); app.openModal(app.modals.evento); });
-        document.getElementById('form-evento').addEventListener('submit', e => { e.preventDefault(); const newEvent = { id: 'evt-' + Date.now(), nombre: document.getElementById('evento-nombre').value, fecha: document.getElementById('evento-fecha').value, fases: JSON.parse(JSON.stringify(checklistTemplate)) }; Object.values(newEvent.fases).flat().forEach(t => t.id = Date.now() + Math.random()); state.eventos.push(newEvent); app.saveState(); app.render(); app.closeModal(app.modals.evento); });
+        document.getElementById('btn-add-evento').addEventListener('click', () => { 
+            document.getElementById('form-evento').reset(); 
+            // Ensure project type input is cleared
+            document.getElementById('evento-proyecto-tipo').value = ""; 
+            app.renderProjectTabs(); // Re-render to ensure datalist options are fresh
+            app.openModal(app.modals.evento); 
+        });
+        document.getElementById('form-evento').addEventListener('submit', e => { 
+            e.preventDefault(); 
+            const fechaInicio = document.getElementById('evento-fecha-inicio').value;
+            const fechaFin = document.getElementById('evento-fecha-fin').value;
+            const projectType = document.getElementById('evento-proyecto-tipo').value.trim(); 
+
+            if (new Date(fechaFin) < new Date(fechaInicio)) {
+                alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+                return;
+            }
+            if (!projectType) {
+                alert('Por favor, ingrese un tipo de proyecto para el evento.');
+                return;
+            }
+
+            const newEvent = { 
+                id: 'evt-' + Date.now(), 
+                nombre: document.getElementById('evento-nombre').value, 
+                fechaInicio: fechaInicio, 
+                fechaFin: fechaFin,       
+                projectType: projectType,      
+                fases: JSON.parse(JSON.stringify(checklistTemplate)) 
+            }; 
+            Object.values(newEvent.fases).flat().forEach(t => t.id = Date.now() + Math.random()); 
+            state.eventos.push(newEvent); 
+            
+            // Add new project type to the general list if it's truly new
+            if (!state.eventProjectTypes.includes(projectType)) {
+                state.eventProjectTypes.push(projectType);
+            }
+            app.saveState(); 
+            currentEventProjectTypeFilter = 'all'; // Reset filter to show newly created event
+            app.render(); 
+            app.closeModal(app.modals.evento); 
+        });
+
+        // NEW: Event listener for editing event form submission
+        document.getElementById('form-edit-evento').addEventListener('submit', e => {
+            e.preventDefault();
+            const eventoId = document.getElementById('edit-evento-id').value;
+            const evento = state.eventos.find(evt => evt.id === eventoId);
+
+            if (!evento) {
+                alert('Error: Evento no encontrado.');
+                return;
+            }
+
+            const newNombre = document.getElementById('edit-evento-nombre').value;
+            const newFechaInicio = document.getElementById('edit-evento-fecha-inicio').value;
+            const newFechaFin = document.getElementById('edit-evento-fecha-fin').value;
+            const newProjectType = document.getElementById('edit-evento-proyecto-tipo').value.trim();
+
+            if (new Date(newFechaFin) < new Date(newFechaInicio)) {
+                alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+                return;
+            }
+            if (!newProjectType) {
+                alert('Por favor, ingrese un tipo de proyecto para el evento.');
+                return;
+            }
+
+            evento.nombre = newNombre;
+            evento.fechaInicio = newFechaInicio;
+            evento.fechaFin = newFechaFin;
+            evento.projectType = newProjectType;
+
+            // Add new project type to the general list if it's truly new
+            if (!state.eventProjectTypes.includes(newProjectType)) {
+                state.eventProjectTypes.push(newProjectType);
+            }
+            
+            app.saveState();
+            app.render();
+            app.closeModal(app.modals.editEvento);
+        });
         
         document.getElementById('btn-add-miembro').addEventListener('click', () => { document.getElementById('form-miembro').reset(); document.getElementById('miembro-id').value = ''; document.getElementById('modal-miembro-title').innerText = 'Añadir Miembro'; app.openModal(app.modals.miembro); });
         document.getElementById('form-miembro').addEventListener('submit', e => { e.preventDefault(); const id = document.getElementById('miembro-id').value; const nombre = document.getElementById('miembro-nombre').value; if(id) { state.equipo.find(m => m.id == id).nombre = nombre; } else { state.equipo.push({ id: Date.now(), nombre, honorarios: [], desplazamientos: [] }); } app.saveState(); app.render(); app.closeModal(app.modals.miembro); });
+
+        // NEW: Bulk Add Member button listener
+        document.getElementById('btn-bulk-add-miembro').addEventListener('click', () => {
+            document.getElementById('bulk-miembro-names').value = ''; // Clear textarea
+            app.openModal(app.modals.bulkMiembro);
+        });
+        // NEW: Bulk Add Member submit listener
+        document.getElementById('btn-save-bulk-miembros').addEventListener('click', app.handleBulkAddMiembros);
 
         document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); app.renderCalendar(); });
         document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); app.renderCalendar(); });
@@ -705,23 +1191,47 @@
         });
 
         // Report Listeners
-        document.getElementById('btn-download-tareas-persona').addEventListener('click', () => { const data = state.eventos.flatMap(e => app.getAllTasks(e).map(t => ({ "Responsables": app.getMiembrosNombres(t.responsables), "Evento": e.nombre, "Fase": Object.keys(e.fases).find(k => e.fases[k].some(x => x.id === t.id)), "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.completado ? "Completado" : "Pendiente" }))); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tareas"); XLSX.writeFile(wb, "Reporte_Tareas_por_Persona.xlsx"); });
-        document.getElementById('btn-download-avance-evento').addEventListener('click', () => { const data = state.eventos.map(e => { const { total, completadas } = app.getEventProgress(e); return { "Evento": e.nombre, "Fecha Inicio": e.fecha, "Total Tareas": total, "Completadas": completadas, "Avance (%)": total > 0 ? ((completadas / total) * 100).toFixed(2) : 0 }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Avance"); XLSX.writeFile(wb, "Reporte_Avance_por_Evento.xlsx"); });
-        document.getElementById('btn-download-estado-general').addEventListener('click', () => { const wb = XLSX.utils.book_new(); state.eventos.forEach(e => { const data = app.getAllTasks(e).map(t => ({ "Fase": Object.keys(e.fases).find(k => e.fases[k].some(x => x.id === t.id)), "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.completado ? "Completado" : "Pendiente", "Responsables": app.getMiembrosNombres(t.responsables) })); const ws = XLSX.utils.json_to_sheet(data); XLSX.utils.book_append_sheet(wb, ws, e.nombre.substring(0, 30)); }); XLSX.writeFile(wb, "Reporte_General_Eventos.xlsx"); });
+        document.getElementById('btn-download-tareas-persona').addEventListener('click', () => { const data = state.eventos.flatMap(e => app.getAllTasks(e).map(t => ({ "Responsables": app.getMiembrosNombres(t.responsables), "Evento": e.nombre, "Tipo de Proyecto": e.projectType || 'N/A', "Fase": Object.keys(e.fases).find(k => e.fases[k].some(x => x.id === t.id)), "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.completado ? "Completado" : "Pendiente" }))); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tareas"); XLSX.writeFile(wb, "Reporte_Tareas_por_Persona.xlsx"); });
+        document.getElementById('btn-download-avance-evento').addEventListener('click', () => { const data = state.eventos.map(e => { const { total, completadas } = app.getEventProgress(e); return { "Evento": e.nombre, "Fecha Inicio": e.fechaInicio, "Fecha Fin": e.fechaFin, "Tipo de Proyecto": e.projectType || 'N/A', "Total Tareas": total, "Completadas": completadas, "Avance (%)": total > 0 ? ((completadas / total) * 100).toFixed(2) : 0 }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Avance"); XLSX.writeFile(wb, "Reporte_Avance_por_Evento.xlsx"); });
+        document.getElementById('btn-download-estado-general').addEventListener('click', () => { const wb = XLSX.utils.book_new(); state.eventos.forEach(e => { 
+            const data = app.getAllTasks(e).map(t => ({ "Fase": Object.keys(e.fases).find(k => e.fases[k].some(x => x.id === t.id)), "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.completado ? "Completado" : "Pendiente", "Responsables": app.getMiembrosNombres(t.responsables) })); 
+            const ws = XLSX.utils.json_to_sheet(data); 
+            const sheetName = e.nombre.substring(0, 30); 
+            XLSX.utils.book_append_sheet(wb, ws, sheetName); 
+        }); XLSX.writeFile(wb, "Reporte_General_Eventos.xlsx"); });
         document.getElementById('btn-download-finanzas-general').addEventListener('click', () => { const reportData = []; state.equipo.forEach(miembro => { miembro.honorarios.forEach(p => reportData.push({ 'Miembro del Equipo': miembro.nombre, 'Tipo de Pago': 'Honorario', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); miembro.desplazamientos.forEach(p => reportData.push({ 'Miembro del Equipo': miembro.nombre, 'Tipo de Pago': 'Desplazamiento', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); }); if (reportData.length === 0) { alert('No hay pagos registrados.'); return; } const ws = XLSX.utils.json_to_sheet(reportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pagos Generales"); XLSX.writeFile(wb, `Reporte_Financiero_General.xlsx`); });
         document.getElementById('btn-download-finanzas-individual').addEventListener('click', () => { const miembroId = document.getElementById('select-finanzas-persona').value; if (miembroId) { app.handleDownloadIndividualReport(miembroId); } else { alert('Por favor, seleccione una persona de la lista.'); } });
         
         // Data Management Listeners
         document.getElementById('btn-export-data').addEventListener('click', () => { const dataStr = JSON.stringify(state, null, 2); const dataBlob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `proyecto_backup_${new Date().toISOString().slice(0,10)}.json`; link.click(); URL.revokeObjectURL(url); });
-        document.getElementById('import-file-input').addEventListener('change', (event) => { const file = event.target.files[0]; if (file && confirm("¿Importar archivo? Se sobreescribirán todos los datos actuales.")) { const reader = new FileReader(); reader.onload = (e) => { try { const imported = JSON.parse(e.target.result); if (imported.eventos && imported.equipo) { Object.assign(state, {}); app.loadState(); Object.assign(state, imported); app.saveState(); app.render(); alert("¡Datos importados con éxito!"); } else { throw new Error("Formato de archivo inválido."); } } catch (err) { alert("Error al importar el archivo: " + err.message); } }; reader.readAsText(file); } event.target.value = ''; });
+        document.getElementById('import-file-input').addEventListener('change', (event) => { const file = event.target.files[0]; if (file && confirm("¿Importar archivo? Se sobreescribirán todos los datos actuales.")) { const reader = new FileReader(); reader.onload = (e) => { try { const imported = JSON.parse(e.target.result); 
+                if (imported.eventos && imported.equipo) { 
+                    // Temporarily store imported data to apply migration logic
+                    localStorage.setItem('projectManagementState_v14_temp_import', JSON.stringify(imported)); 
+                    // Clear current state object first
+                    Object.assign(state, {}); 
+                    // Load state, which will now pull from the temporary import and apply migrations
+                    app.loadState(); 
+                    // If the imported data also had project types, merge them with current ones
+                    if (imported.eventProjectTypes && Array.isArray(imported.eventProjectTypes)) {
+                        state.eventProjectTypes = Array.from(new Set([...state.eventProjectTypes, ...imported.eventProjectTypes]));
+                    } else { // Handle case where old backup might not have this property
+                         state.eventProjectTypes = Array.from(new Set([...state.eventProjectTypes, ...state.eventos.map(e => e.projectType).filter(Boolean)]));
+                    }
+
+                    localStorage.removeItem('projectManagementState_v14_temp_import'); // Clean up temp storage
+                    app.saveState(); 
+                    app.render(); 
+                    alert("¡Datos importados con éxito!"); 
+                } else { throw new Error("Formato de archivo inválido. Faltan propiedades clave (eventos, equipo)."); } } catch (err) { alert("Error al importar el archivo: " + err.message); } }; reader.readAsText(file); } event.target.value = ''; });
 
         // --- 7. INITIALIZATION ---
         app.loadState();
         app.render();
 
-        // Debugging tools
+        // Debugging tools (access in browser console)
         window.app = app;
-        window.resetApp = () => { if (confirm('¿Estás seguro? Se borrarán todos los datos.')) { localStorage.removeItem('projectManagementState_v11'); location.reload(); } };
+        window.resetApp = () => { if (confirm('¿Estás seguro? Se borrarán todos los datos y la aplicación se recargará.')) { localStorage.removeItem('projectManagementState_v14'); location.reload(); } }; 
         window.verEstado = () => { console.log('Estado actual:', state); };
     });
 </script>
