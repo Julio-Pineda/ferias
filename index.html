@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Proyectos</title>
+    <title>Dashboard de Proyectos v2.2</title>
     
     <!-- LIBRERÍAS EXTERNAS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,6 +21,7 @@
             --card-background: #ffffff; --text-color: #333; --light-text-color: #6c757d;
             --border-color: #e0e0e0; --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --danger-color: #dc3545; --warning-color: #ffc107; --success-color: #28a745; --full-color: #0080ff;
+            --info-color: #17a2b8; --gray-color: #6c757d;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--background-color); color: var(--text-color); }
@@ -38,36 +39,10 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Styles for Project Type Tabs */
-        .project-type-tabs-nav { 
-            display: flex;
-            justify-content: center;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 0;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-        .project-type-tab-link { 
-            padding: 0.75rem 1.2rem;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            border-bottom: none;
-            background-color: var(--card-background);
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--light-text-color);
-            transition: all 0.2s ease;
-        }
-        .project-type-tab-link:hover {
-            background-color: #e9ecef;
-            color: var(--primary-color);
-        }
-        .project-type-tab-link.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+        .project-type-tabs-nav { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); margin-bottom: 0; flex-wrap: wrap; gap: 0.75rem; }
+        .project-type-tab-link { padding: 0.75rem 1.2rem; cursor: pointer; border: 1px solid var(--border-color); border-bottom: none; background-color: var(--card-background); border-radius: 12px; font-size: 0.95rem; font-weight: 600; color: var(--light-text-color); transition: all 0.2s ease; }
+        .project-type-tab-link:hover { background-color: #e9ecef; color: var(--primary-color); }
+        .project-type-tab-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
 
         .card { background: var(--card-background); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; overflow: hidden; }
@@ -78,13 +53,15 @@
         .report-card { padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; }
         .empty-state { text-align: center; padding: 3rem; color: var(--light-text-color); font-style: italic; }
 
-        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-danger { background-color: var(--danger-color); color: white; }
         .btn-warning { background-color: var(--warning-color); color: white; }
         .btn-success { background-color: var(--success-color); color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
-        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 8px;}
+        .icon-btn { background: none; border: none; color: var(--light-text-color); font-size: 1.1rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 50%; }
+        .icon-btn:hover { background-color: #f0f2f5; color: var(--primary-color); }
         
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
@@ -95,8 +72,8 @@
         /* ESTILOS PARA DRAG-AND-DROP */
         .event-card-item { background: var(--card-background); border-radius: 22px; box-shadow: var(--shadow); display: flex; flex-direction: column;  border: 1px lightgray solid; cursor: grab;}
         .event-card-item:active { cursor: grabbing; }
-        .event-card-item.sortable-ghost { opacity: 0.4; background: #c8ebfb; } /* Estilo del fantasma */
-        .event-card-item.sortable-chosen { box-shadow: 0 8px 20px rgba(0, 51, 102, 0.2); transform: scale(1.02); } /* Estilo del elemento que se arrastra */
+        .event-card-item.sortable-ghost { opacity: 0.4; background: #c8ebfb; }
+        .event-card-item.sortable-chosen { box-shadow: 0 8px 20px rgba(0, 51, 102, 0.2); transform: scale(1.02); }
 
         .event-card-item-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .event-card-item-header h4 { color: var(--primary-color); cursor: pointer; transition: background-color 0.2s; padding: 5px; border-radius: 4px; width: calc(100% - 40px); }
@@ -120,30 +97,39 @@
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; }
 
-        #checklist-container { max-height: 60vh; overflow-y: auto; padding-right: 1rem; }
-        .checklist-phase h4 { margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-color); }
-        .checklist-task { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px dashed var(--border-color); flex-wrap: wrap;}
-        .checklist-task input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--success-color); flex-shrink: 0; }
-        .task-description { flex-grow: 1; display: flex; align-items: center; gap: 0.5rem;}
-        .task-description input[type="text"] { width: 100%; border: none; border-bottom: 1px solid var(--border-color); padding: 0.5rem; }
-        .task-assignment { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap; width: 450px;}
-        .task-assignment input[type="datetime-local"] { padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); width: 180px;}
-        .task-assignment label { font-size: 0.8rem; margin-left: 5px; }
-        .responsables-display { flex-grow: 1; font-size: 0.85rem; color: var(--light-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .checklist-task.completed .task-description input[type="text"] { text-decoration: line-through; color: var(--light-text-color); }
-        .add-task-btn-container { text-align: right; margin-top: 1rem; }
+        /* --- ESTILOS MEJORADOS PARA CHECKLIST --- */
+        #modal-checklist .modal-content { width: 1200px; }
+        #checklist-container { max-height: 70vh; overflow-y: auto; padding-right: 1rem; }
+        .checklist-phase h4 { margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); padding-bottom: 0.5rem;}
+        .task-card { background-color: #fff; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; padding: 1rem; transition: box-shadow 0.2s ease; }
+        .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .task-main-line { display: flex; align-items: center; gap: 1rem; }
+        .task-main-line input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--success-color); flex-shrink: 0; cursor: pointer;}
+        .task-description { flex-grow: 1; }
+        .task-description input[type="text"] { width: 100%; border: none; font-size: 1.05rem; padding: 0.25rem; border-radius: 4px; transition: background-color 0.2s; }
+        .task-description input[type="text"]:focus { background-color: #f0f2f5; outline: 1px solid var(--primary-color); }
+        .task-card.completed .task-description input[type="text"] { text-decoration: line-through; color: var(--light-text-color); }
+        .task-actions { display: flex; align-items: center; gap: 0.25rem; }
+        .task-details { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-top: 0.75rem; padding-left: 2.2rem; font-size: 0.9rem; }
+        .task-detail-item { display: flex; align-items: center; gap: 0.5rem; }
+        .task-detail-item label { font-weight: 600; color: #555; }
+        .task-detail-item input[type="datetime-local"] { padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color); font-size: 0.85rem; }
+        .responsables-display { font-size: 0.85rem; color: var(--light-text-color); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .status-badge { padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 600; color: white; font-size: 0.8rem; cursor: pointer; text-align: center; min-width: 80px;}
+        .status-badge.status-Completado { background-color: var(--success-color); }
+        .status-badge.status-En-proceso { background-color: var(--info-color); }
+        .status-badge.status-Aplazado { background-color: var(--warning-color); }
+        .status-badge.status-Atrasado { background-color: var(--danger-color); }
+        .status-badge.status-Cancelado { background-color: var(--gray-color); }
+        .status-select { padding: 0.2rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); font-size: 0.8rem; }
+        .add-task-btn-container { text-align: left; margin-top: 1.5rem; }
         .btn-add-task { background: var(--secondary-color); color: var(--primary-color); }
+        .subtasks-container { margin-left: 2.2rem; border-left: 2px solid var(--border-color); padding-left: 1rem; margin-top: 1rem; }
+        .subtask-card { background-color: #f9f9f9; transform: scale(0.98); }
+        .add-subtask-btn { background: #e0f7fa; color: #00796b; padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.85rem; }
+        /* --- FIN ESTILOS CHECKLIST --- */
 
-        .subtasks-container { margin-left: 30px; border-left: 2px solid var(--border-color); padding-left: 10px; margin-top: 10px; }
-        .subtask-item { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px dashed #e9e9e9; flex-wrap: wrap; font-size: 0.95rem; }
-        .subtask-item:last-child { border-bottom: none; }
-        .subtask-item .task-description input[type="text"] { font-size: 0.95rem; }
-        .subtask-item .task-assignment { width: 420px; }
-        .subtask-item .task-assignment input[type="datetime-local"] { width: 160px; }
-        .add-subtask-btn-container { text-align: right; margin-top: 0.5rem; }
-        .btn-add-subtask { background: #e0f7fa; color: #00796b; padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.85rem; }
-
-        #responsables-checkbox-container { max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); padding: 1rem; border-radius: 6px; }
+        #responsables-checkbox-container { max-height: 420px; overflow-y: auto; border: 1px solid var(--border-color); padding: 1rem; border-radius: 6px; }
         .responsable-option { display: block; margin-bottom: 0.5rem; }
         .responsable-option label { margin-left: 0.5rem; }
         
@@ -171,6 +157,18 @@
         .add-pago-form .form-group { margin-bottom: 0; }
         .add-pago-form input { padding: 0.5rem; }
         .report-card select { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 6px; }
+
+        /* --- NUEVOS ESTILOS PARA MODULO OTROS --- */
+        #otros-container { display: flex; flex-direction: column; gap: 1.5rem; }
+        .otro-item { border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
+        .otro-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: #fafafa; cursor: pointer; }
+        .otro-header h4 { color: var(--primary-color); flex-grow: 1; cursor: text; }
+        .otro-header .inline-edit-input { font-size: 1.15rem; }
+        .otro-content { padding: 1.5rem; border-top: 1px solid var(--border-color); display: none; }
+        .otro-content .ql-editor { min-height: 200px; }
+        .otro-item.open .otro-content { display: block; }
+        .otro-item.open .toggle-icon { transform: rotate(180deg); }
+        .toggle-icon { transition: transform 0.3s ease; }
     </style>
 </head>
 <body>
@@ -187,6 +185,7 @@
         <button class="tab-link" data-tab="cronograma"><i class="fas fa-calendar-alt"></i> Cronograma</button>
         <button class="tab-link" data-tab="equipo"><i class="fas fa-users"></i> Gestión de Equipo</button>
         <button class="tab-link" data-tab="finanzas"><i class="fas fa-money-bill-wave"></i> Finanzas</button>
+        <button class="tab-link" data-tab="otros"><i class="fas fa-stream"></i> Otros</button>
         <button class="tab-link" data-tab="reportes"><i class="fas fa-download"></i> Reportes</button>
     </div>
 
@@ -277,8 +276,22 @@
         </div>
     </div>
 
+    <!-- MÓDULO 6: OTROS -->
+    <div id="otros" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-box-open" style="color:var(--secondary-color);"></i> Listas de Contenido Personalizado</h3>
+                <button class="btn btn-primary" id="btn-add-otro-item"><i class="fas fa-plus"></i> Añadir nueva lista</button>
+            </div>
+            <div class="card-body">
+                <div id="otros-container">
+                    <!-- Las listas personalizadas se renderizarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- MÓDULO 6: REPORTES -->
+    <!-- MÓDULO 7: REPORTES -->
     <div id="reportes" class="tab-content">
         <div class="card">
              <div class="card-header"><h3><i class="fas fa-file-excel" style="color:var(--success-color);"></i> Reportes en Excel</h3></div>
@@ -378,6 +391,30 @@
     </div>
 </div>
 
+<!-- NUEVO MODAL PARA OBSERVACIONES DE TAREA -->
+<div id="modal-observacion" class="modal">
+    <div class="modal-content" style="width: 800px;">
+        <span class="close-btn">&times;</span>
+        <h3 id="modal-observacion-title">Observaciones de la Tarea</h3>
+        <!-- Hidden inputs to store the path to the task -->
+        <input type="hidden" id="observacion-task-path-eid">
+        <input type="hidden" id="observacion-task-path-f">
+        <input type="hidden" id="observacion-task-path-tid">
+        <input type="hidden" id="observacion-task-path-stid">
+        <button id="btn-enter-observacion-edit-mode" class="btn btn-warning btn-sm" style="position: absolute; top: 1.5rem; right: 4rem;"><i class="fas fa-pencil-alt"></i> Editar</button>
+        <div id="observacion-view-container" class="ql-snow">
+            <div class="ql-editor" style="height: auto; min-height: 300px; max-height: 60vh; overflow-y: auto; background-color: #f9f9f9; border-radius: 5px; padding: 1rem; border: 1px solid #f0f2f5;"></div>
+        </div>
+        <div id="observacion-editor-container" style="display: none;">
+            <div id="task-observacion-editor" style="height: 300px;"></div>
+        </div>
+        <div id="observacion-actions-container" style="text-align: right; margin-top: 1.5rem; display: none; gap: 0.5rem;">
+            <button class="btn btn-secondary" id="btn-cancel-observacion">Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-observacion">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -385,43 +422,65 @@
         const state = {
             eventos: [],
             equipo: [],
-            eventProjectTypes: ['Ferias locales', 'Ferias subregionles', 'Ferias especializadas', 'Rutas', 'Misiones'] 
+            eventProjectTypes: ['Ferias locales', 'Ferias subregionles', 'Ferias especializadas', 'Rutas', 'Misiones'],
+            otros: []
         };
         const charts = {};
         const app = {};
         let quillEditor = null;
-        let sortableInstance = null; // Instancia de SortableJS
+        let quillObservacionEditor = null; // NUEVA INSTANCIA DE QUILL PARA OBSERVACIONES
+        let sortableInstance = null;
         let currentCalendarDate = new Date();
         let currentMiembroIdFinanzas = null;
         let currentEventProjectTypeFilter = 'all'; 
+        app.activeQuillEditors = {};
         const emptyStateMsg = (msg) => `<div class="empty-state">${msg}</div>`;
+
+        const taskTemplate = {
+            id: null, texto: 'Nueva Tarea (Editar)', completado: false, 
+            responsables: [], fechaInicio: '', fechaFin: '', subtareas: [],
+            estado: 'En proceso', observacion: ''
+        };
+
         const checklistTemplate = {
             planeacion: [
-                { id: 1, texto: 'Definir objetivos y alcance del evento', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 2, texto: 'Elaborar presupuesto detallado', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 3, texto: 'Seleccionar y reservar lugar del evento', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 4, texto: 'Convocar unidades productivas/empresas participantes', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
+                { ...taskTemplate, id: 1, texto: 'Definir objetivos y alcance del evento' },
+                { ...taskTemplate, id: 2, texto: 'Elaborar presupuesto detallado' },
+                { ...taskTemplate, id: 3, texto: 'Seleccionar y reservar lugar del evento' },
+                { ...taskTemplate, id: 4, texto: 'Convocar unidades productivas/empresas participantes' },
             ],
             ejecucion: [
-                { id: 5, texto: 'Montaje de stands y logística', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 6, texto: 'Registro y atención de participantes', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 7, texto: 'Desarrollo de agenda (charlas, ruedas de negocio)', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 8, texto: 'Seguimiento y soporte durante el evento', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
+                { ...taskTemplate, id: 5, texto: 'Montaje de stands y logística' },
+                { ...taskTemplate, id: 6, texto: 'Registro y atención de participantes' },
+                { ...taskTemplate, id: 7, texto: 'Desarrollo de agenda (charlas, ruedas de negocio)' },
+                { ...taskTemplate, id: 8, texto: 'Seguimiento y soporte durante el evento' },
             ],
             cierre: [
-                { id: 9, texto: 'Desmontaje y limpieza del lugar', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 10, texto: 'Recopilar encuestas de satisfacción', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 11, texto: 'Consolidar base de datos de asistentes/contactos', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
+                { ...taskTemplate, id: 9, texto: 'Desmontaje y limpieza del lugar' },
+                { ...taskTemplate, id: 10, texto: 'Recopilar encuestas de satisfacción' },
+                { ...taskTemplate, id: 11, texto: 'Consolidar base de datos de asistentes/contactos' },
             ],
             legalizacion: [
-                { id: 12, texto: 'Elaborar informe final del evento', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 13, texto: 'Gestionar pagos a proveedores y personal', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
-                { id: 14, texto: 'Archivar toda la documentación y soportes', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] },
+                { ...taskTemplate, id: 12, texto: 'Elaborar informe final del evento' },
+                { ...taskTemplate, id: 13, texto: 'Gestionar pagos a proveedores y personal' },
+                { ...taskTemplate, id: 14, texto: 'Archivar toda la documentación y soportes' },
             ]
         };
 
         // --- 2. MODALS AND UTILITIES ---
-        app.modals = { checklist: document.getElementById('modal-checklist'), miembro: document.getElementById('modal-miembro'), evento: document.getElementById('modal-evento'), editEvento: document.getElementById('modal-edit-evento'), responsables: document.getElementById('modal-responsables'), dayTasks: document.getElementById('modal-day-tasks'), finanzas: document.getElementById('modal-finanzas'), editPago: document.getElementById('modal-edit-pago'), bulkMiembro: document.getElementById('modal-bulk-miembro'), descripcion: document.getElementById('modal-descripcion') };
+        app.modals = { 
+            checklist: document.getElementById('modal-checklist'), 
+            miembro: document.getElementById('modal-miembro'), 
+            evento: document.getElementById('modal-evento'), 
+            editEvento: document.getElementById('modal-edit-evento'), 
+            responsables: document.getElementById('modal-responsables'), 
+            dayTasks: document.getElementById('modal-day-tasks'), 
+            finanzas: document.getElementById('modal-finanzas'), 
+            editPago: document.getElementById('modal-edit-pago'), 
+            bulkMiembro: document.getElementById('modal-bulk-miembro'), 
+            descripcion: document.getElementById('modal-descripcion'),
+            observacion: document.getElementById('modal-observacion') // NUEVO MODAL AÑADIDO
+        };
         app.openModal = (modal) => modal.style.display = 'block';
         app.closeModal = (modal) => modal.style.display = 'none';
         app.getMiembroNombre = (id) => state.equipo.find(m => m.id == id)?.nombre || 'N/A';
@@ -451,11 +510,11 @@
 
         // --- 3. DATA PERSISTENCE & CALCULATIONS ---
         
-        // CORREGIDO: Función de migración de datos separada y robusta.
         app.migrateState = (data) => {
             if (!data.eventos) data.eventos = [];
             if (!data.equipo) data.equipo = [];
             if (!data.eventProjectTypes) data.eventProjectTypes = state.eventProjectTypes;
+            if (!data.otros) data.otros = [];
 
             data.eventProjectTypes = Array.from(new Set([...state.eventProjectTypes, ...data.eventProjectTypes]));
 
@@ -485,11 +544,10 @@
                     if (tarea.fecha && !tarea.fechaInicio) { tarea.fechaInicio = tarea.fecha; tarea.fechaFin = ''; delete tarea.fecha; }
                     if (tarea.fechaInicio === undefined) tarea.fechaInicio = '';
                     if (tarea.fechaFin === undefined) tarea.fechaFin = '';
-                    if (tarea.subtareas === undefined) {
-                        tarea.subtareas = [];
-                    } else if (Array.isArray(tarea.subtareas)) {
-                        tarea.subtareas.forEach(sub => migrateTask(sub));
-                    }
+                    if (tarea.subtareas === undefined) tarea.subtareas = [];
+                    else if (Array.isArray(tarea.subtareas)) tarea.subtareas.forEach(sub => migrateTask(sub));
+                    if (tarea.estado === undefined) tarea.estado = tarea.completado ? 'Completado' : 'En proceso';
+                    if (tarea.observacion === undefined) tarea.observacion = '';
                 };
                 if(evento.fases) {
                     Object.values(evento.fases).flat().forEach(task => migrateTask(task));
@@ -501,21 +559,21 @@
             return data;
         };
         
-        // CORREGIDO: `loadState` ahora usa la función de migración.
         app.loadState = () => {
-            let loadedData = JSON.parse(localStorage.getItem('projectManagementState_v15')) || { 
+            let loadedData = JSON.parse(localStorage.getItem('projectManagementState_v18')) || { 
                 equipo: [
                     { id: Date.now(), nombre: 'Coordinación de Proyecto' },
                     ...['Andres Felipe Samboni Perez', 'Daniela Alejandra Mera Lopez', 'Daniela Popo Choco', 'Javier Mariano Mera Rivera', 'Jose Sebastian Restrepo Muñoz', 'Juan Diego Aza Arcos', 'José Fernando Ruíz López', 'Luz Elena Laverde Urrea', 'Manuel Vicente Córdoba Martinez', 'María Fernanda Montenegro Mera', 'María Inés Sánchez', 'Sindy Paola Zuñiga Arrechea'].map((nombre, i) => ({ id: Date.now() + i + 1, nombre }))
                 ], 
                 eventos: [], 
-                eventProjectTypes: state.eventProjectTypes
+                eventProjectTypes: state.eventProjectTypes,
+                otros: []
             };
             const migratedState = app.migrateState(loadedData);
             Object.assign(state, migratedState);
         };
 
-        app.saveState = () => localStorage.setItem('projectManagementState_v15', JSON.stringify(state)); 
+        app.saveState = () => localStorage.setItem('projectManagementState_v18', JSON.stringify(state)); 
 
         app.calculateAnalytics = () => {
             let totalTasks = 0, completedTasks = 0;
@@ -561,6 +619,7 @@
             app.renderCalendar(); 
             app.renderFinanzasTable();
             app.renderReportOptions();
+            app.renderOtrosModule();
         };
 
         app.renderCharts = () => {
@@ -676,29 +735,24 @@
                 new Chart(document.getElementById(`progress-${evento.id}`), { type: 'doughnut', data: { datasets: [{ data: [avance, 100 - avance], backgroundColor: [app.getSemaforoColor(avance), '#e9ecef'], borderWidth: 0 }] }, options: { cutout: '70%', plugins: { tooltip: { enabled: false } } } });
             });
 
-            if (sortableInstance) {
-                sortableInstance.destroy();
-            }
+            if (sortableInstance) sortableInstance.destroy();
             sortableInstance = new Sortable(container, {
                 animation: 150,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 onEnd: (evt) => {
                     const newIdOrder = Array.from(evt.to.children).map(card => card.dataset.eventId);
-                    
                     newIdOrder.forEach((id, index) => {
                         const evento = state.eventos.find(e => e.id === id);
                         if(evento) evento.order = index;
                     });
-
                     let maxVisibleOrder = newIdOrder.length;
                     state.eventos
                         .filter(e => !newIdOrder.includes(e.id))
                         .sort((a,b) => (a.order || 0) - (b.order || 0))
                         .forEach(e => { e.order = maxVisibleOrder++; });
-                    
                     app.saveState();
-                    app.renderCharts(); // Re-render charts to reflect new order
+                    app.renderCharts();
                 }
             });
         };
@@ -722,8 +776,8 @@
             container.querySelector('table').style.display = '';
             tbody.innerHTML = '';
             state.equipo.forEach(miembro => {
-                const totalHonorarios = miembro.honorarios.reduce((sum, p) => sum + (Number(p.valor) || 0), 0);
-                const totalDesplazamientos = miembro.desplazamientos.reduce((sum, p) => sum + (Number(p.valor) || 0), 0);
+                const totalHonorarios = (miembro.honorarios || []).reduce((sum, p) => sum + (Number(p.valor) || 0), 0);
+                const totalDesplazamientos = (miembro.desplazamientos || []).reduce((sum, p) => sum + (Number(p.valor) || 0), 0);
                 tbody.innerHTML += `<tr><td>${miembro.nombre}</td><td>${app.formatCurrency(totalHonorarios)}</td><td>${app.formatCurrency(totalDesplazamientos)}</td><td class="actions"><button class="btn btn-sm btn-primary" onclick="app.openFinanzasModal(${miembro.id})"><i class="fas fa-edit"></i> Gestionar Pagos</button></td></tr>`;
             });
         };
@@ -734,47 +788,84 @@
             document.getElementById('checklist-title').textContent = `Gestionar Tareas de: ${evento.nombre}`;
             const container = document.getElementById('checklist-container');
             container.innerHTML = '';
+
+            const statusOptions = ['En proceso', 'Aplazado', 'Atrasado', 'Cancelado'];
+
+            const createTaskHtml = (tarea, tipo, path) => {
+                const { eId, f, tId, stId } = path;
+                const isSubtask = tipo === 'subtask';
+                const cardClass = isSubtask ? 'task-card subtask-card' : 'task-card';
+                const tieneResponsables = tarea.responsables && tarea.responsables.length > 0;
+                
+                const onToggle = isSubtask ? `app.handleToggleSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.handleToggleTask('${eId}', '${f}', '${tId}')`;
+                const onEditText = isSubtask ? `app.handleEditSubtaskText(this, '${eId}', '${f}', '${tId}', '${stId}')` : `app.handleEditTaskText(this, '${eId}', '${f}', '${tId}')`;
+                const onEditDate = isSubtask ? `app.handleEditSubtaskDate('${eId}', '${f}', '${tId}', '${stId}', arguments[0], this.value)` : `app.handleEditTaskDate('${eId}', '${f}', '${tId}', arguments[0], this.value)`;
+                const openRespModal = isSubtask ? `app.openResponsablesModalForSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.openResponsablesModalForTask('${eId}', '${f}', '${tId}')`;
+                const onDelete = isSubtask ? `app.handleDeleteSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.handleDeleteTask('${eId}', '${f}', '${tId}')`;
+                const onUpdateStatus = isSubtask ? `app.handleUpdateSubtaskStatus('${eId}', '${f}', '${tId}', '${stId}', this.value)` : `app.handleUpdateTaskStatus('${eId}', '${f}', '${tId}', this.value)`;
+                
+                // CAMBIO: Llamada a la nueva función para abrir el modal de observaciones
+                const openObsModal = isSubtask ? `app.openObservacionModal('${eId}', '${f}', '${tId}', '${stId}')` : `app.openObservacionModal('${eId}', '${f}', '${tId}')`;
+                
+                let estadoElemento;
+                const estadoNormalizado = tarea.estado.replace(/\s+/g, '-');
+                if (tarea.completado) {
+                    estadoElemento = `<span class="status-badge status-Completado">Completado</span>`;
+                } else {
+                    estadoElemento = `
+                        <div class="status-badge-container">
+                            <span class="status-badge status-${estadoNormalizado}" onclick="this.style.display='none'; this.nextElementSibling.style.display='inline-block'; this.nextElementSibling.focus();">${tarea.estado}</span>
+                            <select class="status-select" style="display:none;" onchange="${onUpdateStatus}" onblur="this.style.display='none'; this.previousElementSibling.style.display='inline-block';">
+                                ${statusOptions.map(s => `<option value="${s.toLowerCase().replace(/\s+/g, '-')}" ${tarea.estado === s ? 'selected' : ''}>${s}</option>`).join('')}
+                            </select>
+                        </div>`;
+                }
+
+                let taskHtml = `
+                    <div class="${cardClass} ${tarea.completado ? 'completed' : ''}" data-task-id="${isSubtask ? stId : tId}">
+                        <div class="task-main-line">
+                            <input type="checkbox" onchange="${onToggle}" ${tarea.completado ? 'checked' : ''}>
+                            <div class="task-description"><input type="text" value="${tarea.texto}" onchange="${onEditText}" onblur="${onEditText}"></div>
+                            <div class="task-actions">
+                                ${!isSubtask ? `<button class="icon-btn" title="Añadir Sub-tarea" onclick="app.handleAddSubtask('${eId}', '${f}', '${tId}')"><i class="fas fa-plus-circle"></i></button>` : ''}
+                                <button class="icon-btn" title="Observaciones" onclick="${openObsModal}"><i class="fas fa-comment-dots"></i></button>
+                                <button class="icon-btn" title="Eliminar Tarea" onclick="${onDelete}"><i class="fas fa-trash-alt" style="color:var(--danger-color)"></i></button>
+                            </div>
+                        </div>
+                        <div class="task-details">
+                            <div class="task-detail-item"><label>Estado:</label>${estadoElemento}</div>
+                            <div class="task-detail-item">
+                                <label><i class="fas fa-calendar-alt"></i></label>
+                                <input type="datetime-local" value="${tarea.fechaInicio || ''}" onchange="${onEditDate.replace('arguments[0]', "'fechaInicio'")}">
+                                <span style="margin:0 0.25rem;">-</span>
+                                <input type="datetime-local" value="${tarea.fechaFin || ''}" onchange="${onEditDate.replace('arguments[0]', "'fechaFin'")}">
+                            </div>
+                            <div class="task-detail-item">
+                                <label><i class="fas fa-user"></i></label>
+                                <div class="responsables-display" title="${app.getMiembrosNombres(tarea.responsables)}">${app.getMiembrosNombres(tarea.responsables) || 'Sin asignar'}</div>
+                                <button class="btn btn-sm ${tieneResponsables ? 'btn-success' : 'btn-secondary'}" onclick="${openRespModal}">${tieneResponsables ? 'Asignado' : 'Asignar'}</button>
+                            </div>
+                        </div>
+                    </div>`;
+
+                if (!isSubtask && tarea.subtareas && tarea.subtareas.length > 0) {
+                    taskHtml += `<div class="subtasks-container">`;
+                    tarea.subtareas.forEach(subtarea => {
+                        taskHtml += createTaskHtml(subtarea, 'subtask', {eId, f, tId, stId: subtarea.id});
+                    });
+                    taskHtml += `</div>`;
+                }
+                return taskHtml;
+            };
+
             for (const [fase, tareas] of Object.entries(evento.fases)) {
                 let faseHtml = `<div class="checklist-phase" data-fase-id="${fase}"><h4>${fase.charAt(0).toUpperCase() + fase.slice(1)}</h4><div id="task-list-${fase}">`;
                 if(Array.isArray(tareas)) {
                     tareas.forEach(tarea => {
-                        const tieneResponsables = tarea.responsables && tarea.responsables.length > 0;
-                        faseHtml += `
-                            <div class="checklist-task ${tarea.completado ? 'completed' : ''}" data-task-id="${tarea.id}">
-                                <input type="checkbox" onchange="app.handleToggleTask('${evento.id}', '${fase}', '${tarea.id}')" ${tarea.completado ? 'checked' : ''}>
-                                <div class="task-description"><input type="text" value="${tarea.texto}" onchange="app.handleEditTaskText('${evento.id}', '${fase}', '${tarea.id}', this.value)"></div>
-                                <div class="task-assignment">
-                                    <label>Inicio:</label><input type="datetime-local" value="${tarea.fechaInicio || ''}" onchange="app.handleEditTaskDate('${evento.id}', '${fase}', '${tarea.id}', 'fechaInicio', this.value)">
-                                    <label>Fin:</label><input type="datetime-local" value="${tarea.fechaFin || ''}" onchange="app.handleEditTaskDate('${evento.id}', '${fase}', '${tarea.id}', 'fechaFin', this.value)">
-                                    <div class="responsables-display" title="${app.getMiembrosNombres(tarea.responsables)}">${app.getMiembrosNombres(tarea.responsables) || 'Sin asignar'}</div>
-                                    <button class="btn btn-sm ${tieneResponsables ? 'btn-success' : ''}" onclick="app.openResponsablesModalForTask('${evento.id}', '${fase}', '${tarea.id}')">${tieneResponsables ? 'Asignado' : 'Asignar'}</button>
-                                    <button class="btn btn-sm btn-danger" style="background:none; color:var(--danger-color);" onclick="app.handleDeleteTask('${evento.id}', '${fase}', '${tarea.id}')"><i class="fas fa-times"></i></button>
-                                </div>
-                            </div>`;
-                        
-                        if (tarea.subtareas && tarea.subtareas.length > 0) {
-                            faseHtml += `<div class="subtasks-container">`;
-                            tarea.subtareas.forEach(subtarea => {
-                                const tieneSubResponsables = subtarea.responsables && subtarea.responsables.length > 0;
-                                faseHtml += `
-                                    <div class="subtask-item ${subtarea.completado ? 'completed' : ''}" data-subtask-id="${subtarea.id}">
-                                        <input type="checkbox" onchange="app.handleToggleSubtask('${evento.id}', '${fase}', '${tarea.id}', '${subtarea.id}')" ${subtarea.completado ? 'checked' : ''}>
-                                        <div class="task-description"><input type="text" value="${subtarea.texto}" onchange="app.handleEditSubtaskText('${evento.id}', '${fase}', '${tarea.id}', '${subtarea.id}', this.value)"></div>
-                                        <div class="task-assignment">
-                                            <label>Inicio:</label><input type="datetime-local" value="${subtarea.fechaInicio || ''}" onchange="app.handleEditSubtaskDate('${evento.id}', '${fase}', '${tarea.id}', '${subtarea.id}', 'fechaInicio', this.value)">
-                                            <label>Fin:</label><input type="datetime-local" value="${subtarea.fechaFin || ''}" onchange="app.handleEditSubtaskDate('${evento.id}', '${fase}', '${tarea.id}', '${subtarea.id}', 'fechaFin', this.value)">
-                                            <div class="responsables-display" title="${app.getMiembrosNombres(subtarea.responsables)}">${app.getMiembrosNombres(subtarea.responsables) || 'Sin asignar'}</div>
-                                            <button class="btn btn-sm ${tieneSubResponsables ? 'btn-success' : ''}" onclick="app.openResponsablesModalForSubtask('${evento.id}', '${fase}', '${tarea.id}', '${subtarea.id}')">${tieneSubResponsables ? 'Asignado' : 'Asignar'}</button>
-                                            <button class="btn btn-sm btn-danger" style="background:none; color:var(--danger-color);" onclick="app.handleDeleteSubtask('${evento.id}', '${fase}', '${tarea.id}', '${subtarea.id}')"><i class="fas fa-times"></i></button>
-                                        </div>
-                                    </div>`;
-                            });
-                            faseHtml += `</div>`;
-                        }
-                        faseHtml += `<div class="add-subtask-btn-container"><button class="btn btn-add-subtask" onclick="app.handleAddSubtask('${evento.id}', '${fase}', '${tarea.id}')"><i class="fas fa-plus"></i> Añadir Sub-tarea</button></div>`;
+                        faseHtml += createTaskHtml(tarea, 'task', {eId: evento.id, f: fase, tId: tarea.id});
                     });
                 }
-                faseHtml += `</div><div class="add-task-btn-container"><button class="btn btn-add-task btn-sm" onclick="app.handleAddTask('${evento.id}', '${fase}')"><i class="fas fa-plus"></i> Añadir Tarea Principal</button></div></div>`;
+                faseHtml += `</div><div class="add-task-btn-container"><button class="btn btn-add-task btn-sm" onclick="app.handleAddTask('${evento.id}', '${fase}')"><i class="fas fa-plus"></i> Añadir Tarea a ${fase}</button></div></div>`;
                 container.innerHTML += faseHtml;
             }
             app.openModal(app.modals.checklist);
@@ -832,7 +923,7 @@
         app.renderPagosList = (miembro, tipo, containerId) => {
             const container = document.getElementById(containerId);
             const header = `<div class="pago-item" style="font-weight:bold; border-bottom-width: 2px;"><span>Concepto</span><span>Periodo</span><span>Valor</span><span>Acciones</span></div>`;
-            container.innerHTML = header + miembro[tipo].map(pago => `<div class="pago-item" data-pago-id="${pago.id}"><span>${pago.concepto || 'Sin concepto'}</span><span>${app.formatDate(pago.fechaInicio)} al ${app.formatDate(pago.fechaFin)}</span><span>${app.formatCurrency(pago.valor)}</span><div class="pago-actions"><button class="btn btn-warning btn-sm" onclick="app.handleEditPago('${tipo}', ${pago.id})"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="app.handleDeletePago('${tipo}', ${pago.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+            container.innerHTML = header + (miembro[tipo] || []).map(pago => `<div class="pago-item" data-pago-id="${pago.id}"><span>${pago.concepto || 'Sin concepto'}</span><span>${app.formatDate(pago.fechaInicio)} al ${app.formatDate(pago.fechaFin)}</span><span>${app.formatCurrency(pago.valor)}</span><div class="pago-actions"><button class="btn btn-warning btn-sm" onclick="app.handleEditPago('${tipo}', ${pago.id})"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="app.handleDeletePago('${tipo}', ${pago.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
         };
         
         app.renderReportOptions = () => {
@@ -844,15 +935,15 @@
 
         // --- 5. EVENT HANDLERS (CONTROLLERS) ---
         app.handleTabClick = (e) => { document.querySelectorAll('.tab-link, .tab-content').forEach(el => el.classList.remove('active')); e.currentTarget.classList.add('active'); document.getElementById(e.currentTarget.dataset.tab).classList.add('active'); app.render(); };
-        app.handleAddTask = (eId, f) => { state.eventos.find(e => e.id === eId).fases[f].push({ id: Date.now(), texto: 'Nueva Tarea (Editar)', completado: false, responsables: [], fechaInicio: '', fechaFin: '', subtareas: [] }); app.saveState(); app.renderChecklistModal(eId); };
-        app.handleDeleteTask = (eId, f, tId) => { if(confirm('¿Seguro que desea eliminar esta tarea y todas sus sub-tareas?')) { const e = state.eventos.find(x => x.id === eId); e.fases[f] = e.fases[f].filter(t => t.id != tId); app.saveState(); app.renderChecklistModal(eId); } };
-        app.handleToggleTask = (eId, f, tId) => { const task = state.eventos.find(e => e.id === eId).fases[f].find(x => x.id == tId); task.completado = !task.completado; if (task.subtareas && Array.isArray(task.subtareas)) { task.subtareas.forEach(subtask => subtask.completado = task.completado); } app.saveState(); app.render(); app.renderChecklistModal(eId); };
-        app.handleEditTaskText = (eId, f, tId, txt) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).texto = txt; app.saveState(); };
+        app.handleAddTask = (eId, f) => { state.eventos.find(e => e.id === eId).fases[f].push({ ...taskTemplate, id: Date.now() }); app.saveState(); app.renderChecklistModal(eId); };
+        app.handleDeleteTask = (eId, f, tId) => { if(confirm('¿Seguro que desea eliminar esta tarea y todas sus sub-tareas?')) { const e = state.eventos.find(x => x.id === eId); e.fases[f] = e.fases[f].filter(t => t.id != tId); app.saveState(); app.render(); app.renderChecklistModal(eId); } };
+        app.handleToggleTask = (eId, f, tId) => { const task = state.eventos.find(e => e.id === eId).fases[f].find(x => x.id == tId); task.completado = !task.completado; task.estado = task.completado ? 'Completado' : 'En proceso'; if (task.subtareas && Array.isArray(task.subtareas)) { task.subtareas.forEach(subtask => {subtask.completado = task.completado; subtask.estado = subtask.completado ? 'Completado' : 'En proceso';}); } app.saveState(); app.render(); app.renderChecklistModal(eId); };
+        app.handleEditTaskText = (input, eId, f, tId) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).texto = input.value; app.saveState(); };
         app.handleEditTaskDate = (eId, f, tId, tipoFecha, date) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId)[tipoFecha] = date; app.saveState(); app.render(); };
-        app.handleAddSubtask = (eId, f, tId) => { const parentTask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId); if (!parentTask.subtareas) parentTask.subtareas = []; parentTask.subtareas.push({ id: Date.now(), texto: 'Nueva Sub-tarea (Editar)', completado: false, responsables: [], fechaInicio: '', fechaFin: '' }); app.saveState(); app.renderChecklistModal(eId); };
-        app.handleDeleteSubtask = (eId, f, tId, stId) => { if(confirm('¿Seguro que desea eliminar esta sub-tarea?')) { const parentTask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId); parentTask.subtareas = parentTask.subtareas.filter(st => st.id != stId); app.saveState(); app.renderChecklistModal(eId); } };
-        app.handleToggleSubtask = (eId, f, tId, stId) => { const subtask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).subtareas.find(st => st.id == stId); subtask.completado = !subtask.completado; app.saveState(); app.render(); document.querySelector(`.subtask-item[data-subtask-id='${stId}']`).classList.toggle('completed', subtask.completado); };
-        app.handleEditSubtaskText = (eId, f, tId, stId, txt) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).subtareas.find(st => st.id == stId).texto = txt; app.saveState(); };
+        app.handleAddSubtask = (eId, f, tId) => { const parentTask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId); if (!parentTask.subtareas) parentTask.subtareas = []; parentTask.subtareas.push({ ...taskTemplate, id: Date.now(), texto: 'Nueva Sub-tarea (Editar)' }); app.saveState(); app.renderChecklistModal(eId); };
+        app.handleDeleteSubtask = (eId, f, tId, stId) => { if(confirm('¿Seguro que desea eliminar esta sub-tarea?')) { const parentTask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId); parentTask.subtareas = parentTask.subtareas.filter(st => st.id != stId); app.saveState(); app.render(); app.renderChecklistModal(eId); } };
+        app.handleToggleSubtask = (eId, f, tId, stId) => { const subtask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).subtareas.find(st => st.id == stId); subtask.completado = !subtask.completado; subtask.estado = subtask.completado ? 'Completado' : 'En proceso'; app.saveState(); app.render(); app.renderChecklistModal(eId); };
+        app.handleEditSubtaskText = (input, eId, f, tId, stId) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).subtareas.find(st => st.id == stId).texto = input.value; app.saveState(); };
         app.handleEditSubtaskDate = (eId, f, tId, stId, tipoFecha, date) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).subtareas.find(st => st.id == stId)[tipoFecha] = date; app.saveState(); app.render(); };
         app.openResponsablesModalForTask = (eId, f, tId) => { const tarea = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId); const container = document.getElementById('responsables-checkbox-container'); container.innerHTML = state.equipo.map(m => `<div class="responsable-option"><label><input type="checkbox" value="${m.id}" ${tarea.responsables.includes(String(m.id)) ? 'checked' : ''}>${m.nombre}</label></div>`).join(''); document.getElementById('btn-save-responsables').onclick = () => app.handleSaveResponsablesForTask(eId, f, tId); app.openModal(app.modals.responsables); };
         app.handleSaveResponsablesForTask = (eId, f, tId) => { const nuevosResponsables = []; document.querySelectorAll('#responsables-checkbox-container input:checked').forEach(checkbox => {nuevosResponsables.push(checkbox.value);}); state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).responsables = nuevosResponsables; app.saveState(); app.render(); app.renderChecklistModal(eId); app.closeModal(app.modals.responsables); };
@@ -865,14 +956,132 @@
         app.handleDeleteMiembro = (id) => { if(confirm('¿Está seguro? Las tareas y pagos asignados a esta persona se eliminarán.')) { state.equipo = state.equipo.filter(m => m.id !== id); state.eventos.forEach(e => app.getAllTasks(e).forEach(t => { t.responsables = t.responsables.filter(rId => rId != id); })); app.saveState(); app.render(); } };
         app.showDayDetails = (dateStr, tasks, events) => { const dateObj = new Date(dateStr + 'T00:00:00'); document.getElementById('day-tasks-title').textContent = `Detalle del Día: ${dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`; const listEl = document.getElementById('day-tasks-list'); let contentHtml = ''; if (events && events.length > 0) { contentHtml += `<h4 style="color: var(--danger-color); margin-bottom: 0.5rem;"><i class="fas fa-play-circle"></i> Eventos que inician este día:</h4><ul style="list-style: none; padding: 0;">`; events.forEach(event => { contentHtml += `<li><strong>${event.nombre}</strong><br><small><em>Tipo:</em> ${event.projectType || 'N/A'}</small><br><small><em>Inicio:</em> ${app.formatDate(event.fechaInicio)} | <em>Fin:</em> ${app.formatDate(event.fechaFin)}</small></li>`; }); contentHtml += `</ul>`; if (tasks && tasks.length > 0) { contentHtml += `<hr style="margin: 1.5rem 0; border-top: 1px dashed var(--border-color);">`; } } if (tasks && tasks.length > 0) { contentHtml += `<h4 style="color: var(--primary-color); margin-bottom: 0.5rem;"><i class="fas fa-tasks"></i> Tareas asignadas para este día:</h4><ul style="list-style: none; padding: 0;">`; tasks.forEach(t => { let taskTitle = t.texto; let indentStyle = ''; if (t.nivel === "Sub-tarea") { taskTitle = `&nbsp;&nbsp;&nbsp;<i class="fas fa-indent"></i> ${t.texto}`; indentStyle = 'padding-left: 20px;'; } contentHtml += `<li style="${indentStyle}"><strong>${taskTitle}</strong><br><small><em>Evento:</em> ${t.eventoNombre}</small><br>`; if (t.nivel === "Sub-tarea" && t.tareaPadre) { contentHtml += `<small><em>Tarea Padre:</em> ${t.tareaPadre}</small><br>`; } contentHtml += `<small><em>Fase:</em> ${t.faseNombre}</small><br><small><em>Inicio:</em> ${app.formatDateTime(t.fechaInicio)} | <em>Fin:</em> ${app.formatDateTime(t.fechaFin)}</small><br><small><em>Responsables:</em> ${app.getMiembrosNombres(t.responsables) || 'Sin asignar'}</small></li>`; }); contentHtml += `</ul>`; } else if (!events || events.length === 0) { contentHtml += `<p style="text-align: center; color: var(--light-text-color); padding: 1.5rem 0;">No hay eventos que inicien ni tareas asignadas para este día.</p>`; } listEl.innerHTML = contentHtml; app.openModal(app.modals.dayTasks); };
         app.openFinanzasModal = (miembroId) => {currentMiembroIdFinanzas = miembroId;const miembro = state.equipo.find(m => m.id === miembroId);if (!miembro) return;document.getElementById('finanzas-title').textContent = `Gestión de Pagos para: ${miembro.nombre}`;app.renderPagosList(miembro, 'honorarios', 'honorarios-list');app.renderPagosList(miembro, 'desplazamientos', 'desplazamientos-list');app.openModal(app.modals.finanzas);};
-        app.handleAddPago = (tipo) => { if (!currentMiembroIdFinanzas) return; const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas); const tipoSingular = tipo.slice(0, -1); const conceptoInput = document.getElementById(`${tipoSingular}-concepto`); const valorInput = document.getElementById(`${tipoSingular}-valor`); const fechaInicioInput = document.getElementById(`${tipoSingular}-fechaInicio`); const fechaFinInput = document.getElementById(`${tipoSingular}-fechaFin`); const concepto = conceptoInput.value; const valor = valorInput.value; const fechaInicio = fechaInicioInput.value; const fechaFin = fechaFinInput.value; if (!concepto || !valor || !fechaInicio || !fechaFin) { alert('El concepto, valor y ambas fechas son obligatorios.'); return; } if (new Date(fechaFin) < new Date(fechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; } miembro[tipo].push({ id: Date.now(), concepto, valor: parseFloat(valor), fechaInicio, fechaFin }); app.saveState(); conceptoInput.value = ''; valorInput.value = ''; fechaInicioInput.value = ''; fechaFinInput.value = ''; app.renderPagosList(miembro, tipo, `${tipo}-list`); app.renderFinanzasTable(); };
+        app.handleAddPago = (tipo) => { if (!currentMiembroIdFinanzas) return; const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas); const tipoSingular = tipo.slice(0, -1); const conceptoInput = document.getElementById(`${tipoSingular}-concepto`); const valorInput = document.getElementById(`${tipoSingular}-valor`); const fechaInicioInput = document.getElementById(`${tipoSingular}-fechaInicio`); const fechaFinInput = document.getElementById(`${tipoSingular}-fechaFin`); const concepto = conceptoInput.value; const valor = valorInput.value; const fechaInicio = fechaInicioInput.value; const fechaFin = fechaFinInput.value; if (!concepto || !valor || !fechaInicio || !fechaFin) { alert('El concepto, valor y ambas fechas son obligatorios.'); return; } if (new Date(fechaFin) < new Date(fechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; } if(!miembro[tipo]) miembro[tipo] = []; miembro[tipo].push({ id: Date.now(), concepto, valor: parseFloat(valor), fechaInicio, fechaFin }); app.saveState(); conceptoInput.value = ''; valorInput.value = ''; fechaInicioInput.value = ''; fechaFinInput.value = ''; app.renderPagosList(miembro, tipo, `${tipo}-list`); app.renderFinanzasTable(); };
         app.handleDeletePago = (tipo, pagoId) => {if (!currentMiembroIdFinanzas) return;const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas);miembro[tipo] = miembro[tipo].filter(p => p.id !== pagoId);app.saveState();app.renderPagosList(miembro, tipo, `${tipo}-list`);app.renderFinanzasTable();};
-        app.handleEditPago = (tipo, pagoId) => { if (!currentMiembroIdFinanzas) return; const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas); const pago = miembro[tipo].find(p => p.id === pagoId); if (!pago) return; document.getElementById('edit-pago-id').value = pago.id; document.getElementById('edit-pago-tipo').value = tipo; document.getElementById('edit-pago-concepto').value = pago.concepto; document.getElementById('edit-pago-valor').value = pago.valor; document.getElementById('edit-pago-fechaInicio').value = pago.fechaInicio; document.getElementById('edit-pago-fechaFin').value = pago.fechaFin; app.openModal(app.modals.editPago); };
+        app.handleEditPago = (tipo, pagoId) => { if (!currentMiembroIdFinanzas) return; const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas); const pago = (miembro[tipo] || []).find(p => p.id === pagoId); if (!pago) return; document.getElementById('edit-pago-id').value = pago.id; document.getElementById('edit-pago-tipo').value = tipo; document.getElementById('edit-pago-concepto').value = pago.concepto; document.getElementById('edit-pago-valor').value = pago.valor; document.getElementById('edit-pago-fechaInicio').value = pago.fechaInicio; document.getElementById('edit-pago-fechaFin').value = pago.fechaFin; app.openModal(app.modals.editPago); };
         app.handleEditEventDetails = (eventoId) => { const evento = state.eventos.find(e => e.id === eventoId); if (!evento) return; document.getElementById('edit-evento-id').value = evento.id; document.getElementById('edit-evento-nombre').value = evento.nombre; document.getElementById('edit-evento-fecha-inicio').value = evento.fechaInicio; document.getElementById('edit-evento-fecha-fin').value = evento.fechaFin; document.getElementById('edit-evento-proyecto-tipo').value = evento.projectType; app.renderProjectTabs(); app.openModal(app.modals.editEvento); };
-        app.handleDownloadIndividualReport = (miembroId) => { const miembro = state.equipo.find(m => m.id == miembroId); if (!miembro) { alert('Persona no encontrada.'); return; } const reportData = []; miembro.honorarios.forEach(p => reportData.push({ 'Tipo de Pago': 'Honorario', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); miembro.desplazamientos.forEach(p => reportData.push({ 'Tipo de Pago': 'Desplazamiento', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); if (reportData.length === 0) { alert('Este miembro no tiene pagos registrados.'); return; } const ws = XLSX.utils.json_to_sheet(reportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pagos"); XLSX.writeFile(wb, `Reporte_Financiero_${miembro.nombre.replace(/ /g, '_')}.xlsx`); };
+        app.handleDownloadIndividualReport = (miembroId) => { const miembro = state.equipo.find(m => m.id == miembroId); if (!miembro) { alert('Persona no encontrada.'); return; } const reportData = []; (miembro.honorarios || []).forEach(p => reportData.push({ 'Tipo de Pago': 'Honorario', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); (miembro.desplazamientos || []).forEach(p => reportData.push({ 'Tipo de Pago': 'Desplazamiento', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); if (reportData.length === 0) { alert('Este miembro no tiene pagos registrados.'); return; } const ws = XLSX.utils.json_to_sheet(reportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pagos"); XLSX.writeFile(wb, `Reporte_Financiero_${miembro.nombre.replace(/ /g, '_')}.xlsx`); };
         app.handleBulkAddMiembros = () => { const textarea = document.getElementById('bulk-miembro-names'); const names = textarea.value.split('\n').map(name => name.trim()).filter(Boolean); if (names.length === 0) { alert('Por favor, ingrese al menos un nombre.'); return; } let newMembersAdded = 0; const existingNames = new Set(state.equipo.map(m => m.nombre.toLowerCase())); names.forEach(name => { if (!existingNames.has(name.toLowerCase())) { state.equipo.push({ id: Date.now() + Math.random(), nombre: name, honorarios: [], desplazamientos: [] }); newMembersAdded++; } }); if (newMembersAdded > 0) { app.saveState(); app.render(); alert(`Se añadieron ${newMembersAdded} nuevos miembros.`); textarea.value = ''; app.closeModal(app.modals.bulkMiembro); } else { alert('No se añadieron nuevos miembros. Es posible que ya existan en la lista.'); } };
         app.openDescripcionModal = (eventoId) => { const evento = state.eventos.find(e => e.id === eventoId); if (!evento) return; document.getElementById('descripcion-evento-id').value = eventoId; document.getElementById('modal-descripcion-title').textContent = `Descripción de: ${evento.nombre}`; const viewContainer = document.querySelector('#descripcion-view-container .ql-editor'); viewContainer.innerHTML = evento.descripcion || '<p><i>No hay descripción. Haga clic en "Editar" para añadir una.</i></p>'; document.getElementById('descripcion-view-container').style.display = 'block'; document.getElementById('descripcion-editor-container').style.display = 'none'; document.getElementById('btn-enter-edit-mode').style.display = 'inline-block'; document.getElementById('descripcion-actions-container').style.display = 'none'; app.openModal(app.modals.descripcion); };
         app.handleSaveDescripcion = () => { const eventoId = document.getElementById('descripcion-evento-id').value; const evento = state.eventos.find(e => e.id === eventoId); if (!evento || !quillEditor) return; const newDescription = quillEditor.root.innerHTML; evento.descripcion = (newDescription === '<p><br></p>') ? '' : newDescription; app.saveState(); const viewContainer = document.querySelector('#descripcion-view-container .ql-editor'); viewContainer.innerHTML = evento.descripcion || '<p><i>No hay descripción. Haga clic en "Editar" para añadir una.</i></p>'; document.getElementById('descripcion-view-container').style.display = 'block'; document.getElementById('descripcion-editor-container').style.display = 'none'; document.getElementById('btn-enter-edit-mode').style.display = 'inline-block'; document.getElementById('descripcion-actions-container').style.display = 'none'; };
+
+        // --- HANDLERS PARA ESTADO Y OBSERVACIÓN DE TAREAS (POPUP) ---
+        const updateTaskStatus = (task, newStatusValue) => { 
+            const formattedStatus = newStatusValue.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            if (!task.completado) { 
+                task.estado = formattedStatus; 
+                app.saveState(); 
+            }
+        };
+        app.handleUpdateTaskStatus = (eId, f, tId, newStatus) => { const task = state.eventos.find(e=>e.id===eId).fases[f].find(t=>t.id==tId); updateTaskStatus(task, newStatus); app.renderChecklistModal(eId);};
+        app.handleUpdateSubtaskStatus = (eId, f, tId, stId, newStatus) => { const task = state.eventos.find(e=>e.id===eId).fases[f].find(t=>t.id==tId).subtareas.find(st=>st.id==stId); updateTaskStatus(task, newStatus); app.renderChecklistModal(eId);};
+        
+        app.openObservacionModal = (eId, f, tId, stId = null) => {
+            const task = stId 
+                ? state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId).subtareas.find(st=>st.id==stId) 
+                : state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId);
+            if (!task) return;
+
+            // Store the path to the task in the modal's hidden inputs
+            document.getElementById('observacion-task-path-eid').value = eId;
+            document.getElementById('observacion-task-path-f').value = f;
+            document.getElementById('observacion-task-path-tid').value = tId;
+            document.getElementById('observacion-task-path-stid').value = stId || '';
+
+            // Set modal title
+            document.getElementById('modal-observacion-title').textContent = `Observaciones para: ${task.texto}`;
+            
+            // Set view content
+            const viewContainer = document.querySelector('#observacion-view-container .ql-editor');
+            viewContainer.innerHTML = task.observacion || '<p><i>No hay observaciones. Haga clic en "Editar" para añadir una.</i></p>';
+
+            // Reset modal to view state
+            document.getElementById('observacion-view-container').style.display = 'block';
+            document.getElementById('observacion-editor-container').style.display = 'none';
+            document.getElementById('btn-enter-observacion-edit-mode').style.display = 'inline-block';
+            document.getElementById('observacion-actions-container').style.display = 'none';
+            
+            app.openModal(app.modals.observacion);
+        };
+
+        app.handleSaveObservacion = () => {
+            // Retrieve path from hidden inputs
+            const eId = document.getElementById('observacion-task-path-eid').value;
+            const f = document.getElementById('observacion-task-path-f').value;
+            const tId = document.getElementById('observacion-task-path-tid').value;
+            const stId = document.getElementById('observacion-task-path-stid').value;
+            
+            const task = stId
+                ? state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId).subtareas.find(st=>st.id==stId) 
+                : state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId);
+
+            if (!task || !quillObservacionEditor) return;
+
+            const newObservacion = quillObservacionEditor.root.innerHTML;
+            task.observacion = (newObservacion === '<p><br></p>') ? '' : newObservacion;
+            app.saveState();
+            
+            // Update view and switch back to view mode
+            const viewContainer = document.querySelector('#observacion-view-container .ql-editor');
+            viewContainer.innerHTML = task.observacion || '<p><i>No hay observaciones. Haga clic en "Editar" para añadir una.</i></p>';
+            document.getElementById('observacion-view-container').style.display = 'block';
+            document.getElementById('observacion-editor-container').style.display = 'none';
+            document.getElementById('btn-enter-observacion-edit-mode').style.display = 'inline-block';
+            document.getElementById('observacion-actions-container').style.display = 'none';
+        };
+        
+        // --- HANDLERS PARA MÓDULO OTROS ---
+        app.renderOtrosModule = () => {
+            const container = document.getElementById('otros-container');
+            if (!container) return;
+            container.innerHTML = '';
+            if (state.otros.length === 0) {
+                container.innerHTML = emptyStateMsg("No hay listas de contenido. ¡Añade la primera!");
+                return;
+            }
+
+            state.otros.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'otro-item';
+                itemEl.dataset.id = item.id;
+                itemEl.innerHTML = `
+                    <div class="otro-header" onclick="app.toggleOtroItem(this)">
+                        <h4 onclick="event.stopPropagation(); app.editOtroItemTitle(this, '${item.id}')">${item.title}</h4>
+                        <div class="task-actions">
+                            <button class="icon-btn toggle-icon" title="Expandir/Contraer"><i class="fas fa-chevron-down"></i></button>
+                            <button class="icon-btn" title="Eliminar lista" onclick="event.stopPropagation(); app.deleteOtroItem('${item.id}')"><i class="fas fa-trash-alt" style="color:var(--danger-color)"></i></button>
+                        </div>
+                    </div>
+                    <div class="otro-content">
+                        <div id="otro-editor-${item.id}"></div>
+                    </div>
+                `;
+                container.appendChild(itemEl);
+            });
+        };
+        app.addOtroItem = () => { state.otros.push({ id: 'otro-' + Date.now(), title: 'Nueva Lista (Haz clic para editar)', content: '' }); app.saveState(); app.renderOtrosModule(); };
+        app.deleteOtroItem = (id) => { if (confirm('¿Seguro que quieres eliminar esta lista y todo su contenido?')) { state.otros = state.otros.filter(item => item.id !== id); app.saveState(); app.renderOtrosModule(); } };
+        app.editOtroItemTitle = (h4, id) => { const originalTitle = h4.textContent.trim(); h4.innerHTML = `<input type="text" class="inline-edit-input" value="${originalTitle}">`; const input = h4.querySelector('input'); input.focus(); input.select(); const save = () => { const newTitle = input.value.trim(); const item = state.otros.find(i => i.id === id); if (item && newTitle) { item.title = newTitle; app.saveState(); } h4.textContent = item.title; }; input.addEventListener('blur', save); input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { h4.textContent = originalTitle; } }); };
+        app.toggleOtroItem = (headerEl) => {
+            const itemEl = headerEl.parentElement;
+            const editorId = `otro-editor-${itemEl.dataset.id}`;
+            const item = state.otros.find(i => i.id === itemEl.dataset.id);
+            itemEl.classList.toggle('open');
+            if (itemEl.classList.contains('open')) {
+                 if (!app.activeQuillEditors[editorId]) {
+                    const quill = new Quill(`#${editorId}`, { theme: 'snow', placeholder: 'Escribe aquí...' });
+                    quill.root.innerHTML = item.content || '';
+                    app.activeQuillEditors[editorId] = quill;
+                }
+            } else {
+                if (app.activeQuillEditors[editorId]) {
+                    item.content = app.activeQuillEditors[editorId].root.innerHTML;
+                    app.saveState();
+                    app.activeQuillEditors[editorId] = null; delete app.activeQuillEditors[editorId];
+                    document.getElementById(editorId).innerHTML = '';
+                }
+            }
+        };
 
         // --- 6. EVENT LISTENERS BINDING ---
         Object.values(app.modals).forEach(modal => { if (modal) { modal.querySelector('.close-btn').addEventListener('click', () => app.closeModal(modal)); modal.addEventListener('click', (e) => { if (e.target === modal) app.closeModal(modal); }); }});
@@ -886,28 +1095,35 @@
         document.getElementById('btn-save-bulk-miembros').addEventListener('click', app.handleBulkAddMiembros);
         document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); app.renderCalendar(); });
         document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); app.renderCalendar(); });
-        document.getElementById('form-edit-pago').addEventListener('submit', e => { e.preventDefault(); const pagoId = document.getElementById('edit-pago-id').value; const tipo = document.getElementById('edit-pago-tipo').value; if (!currentMiembroIdFinanzas || !pagoId || !tipo) return; const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas); const pago = miembro[tipo].find(p => p.id == pagoId); if (!pago) return; pago.concepto = document.getElementById('edit-pago-concepto').value; pago.valor = parseFloat(document.getElementById('edit-pago-valor').value); pago.fechaInicio = document.getElementById('edit-pago-fechaInicio').value; pago.fechaFin = document.getElementById('edit-pago-fechaFin').value; if (new Date(pago.fechaFin) < new Date(pago.fechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; } app.saveState(); app.renderPagosList(miembro, tipo, `${tipo}-list`); app.renderFinanzasTable(); app.closeModal(app.modals.editPago); });
-        document.getElementById('btn-download-tareas-persona').addEventListener('click', () => { const data = []; state.eventos.slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(e => { app.getAllTasks(e).forEach(t => { data.push({ "Responsables": app.getMiembrosNombres(t.responsables), "Evento": e.nombre, "Tipo de Proyecto": e.projectType || 'N/A', "Fase": t.faseNombre, "Nivel": t.nivel, "Tarea Padre": t.tareaPadre, "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.completado ? "Completado" : "Pendiente" }); }); }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tareas por Persona"); XLSX.writeFile(wb, "Reporte_Tareas_por_Persona.xlsx"); });
+        document.getElementById('form-edit-pago').addEventListener('submit', e => { e.preventDefault(); const pagoId = document.getElementById('edit-pago-id').value; const tipo = document.getElementById('edit-pago-tipo').value; if (!currentMiembroIdFinanzas || !pagoId || !tipo) return; const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas); const pago = (miembro[tipo] || []).find(p => p.id == pagoId); if (!pago) return; pago.concepto = document.getElementById('edit-pago-concepto').value; pago.valor = parseFloat(document.getElementById('edit-pago-valor').value); pago.fechaInicio = document.getElementById('edit-pago-fechaInicio').value; pago.fechaFin = document.getElementById('edit-pago-fechaFin').value; if (new Date(pago.fechaFin) < new Date(pago.fechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; } app.saveState(); app.renderPagosList(miembro, tipo, `${tipo}-list`); app.renderFinanzasTable(); app.closeModal(app.modals.editPago); });
+        document.getElementById('btn-download-tareas-persona').addEventListener('click', () => { const data = []; state.eventos.slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(e => { app.getAllTasks(e).forEach(t => { data.push({ "Responsables": app.getMiembrosNombres(t.responsables), "Evento": e.nombre, "Tipo de Proyecto": e.projectType || 'N/A', "Fase": t.faseNombre, "Nivel": t.nivel, "Tarea Padre": t.tareaPadre, "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.estado }); }); }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tareas por Persona"); XLSX.writeFile(wb, "Reporte_Tareas_por_Persona.xlsx"); });
         document.getElementById('btn-download-avance-evento').addEventListener('click', () => { const data = state.eventos.slice().sort((a,b)=>(a.order||0)-(b.order||0)).map(e => { const { total, completadas } = app.getEventProgress(e); return { "Evento": e.nombre, "Fecha Inicio": e.fechaInicio, "Fecha Fin": e.fechaFin, "Tipo de Proyecto": e.projectType || 'N/A', "Total Tareas": total, "Completadas": completadas, "Avance (%)": total > 0 ? ((completadas / total) * 100).toFixed(2) : 0 }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Avance por Evento"); XLSX.writeFile(wb, "Reporte_Avance_por_Evento.xlsx"); });
-        document.getElementById('btn-download-estado-general').addEventListener('click', () => { const wb = XLSX.utils.book_new(); state.eventos.slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(e => { const eventTasksData = []; app.getAllTasks(e).forEach(t => { eventTasksData.push({ "Fase": t.faseNombre, "Nivel": t.nivel, "Tarea Padre": t.tareaPadre, "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.completado ? "Completado" : "Pendiente", "Responsables": app.getMiembrosNombres(t.responsables) }); }); const ws = XLSX.utils.json_to_sheet(eventTasksData); const sheetName = e.nombre.substring(0, 30).replace(/[\\/?*\[\]:]/g, ''); XLSX.utils.book_append_sheet(wb, ws, sheetName); }); XLSX.writeFile(wb, "Reporte_General_Eventos.xlsx"); });
-        document.getElementById('btn-download-finanzas-general').addEventListener('click', () => { const reportData = []; state.equipo.forEach(miembro => { miembro.honorarios.forEach(p => reportData.push({ 'Miembro del Equipo': miembro.nombre, 'Tipo de Pago': 'Honorario', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); miembro.desplazamientos.forEach(p => reportData.push({ 'Miembro del Equipo': miembro.nombre, 'Tipo de Pago': 'Desplazamiento', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); }); if (reportData.length === 0) { alert('No hay pagos registrados.'); return; } const ws = XLSX.utils.json_to_sheet(reportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pagos Generales"); XLSX.writeFile(wb, `Reporte_Financiero_General.xlsx`); });
+        document.getElementById('btn-download-estado-general').addEventListener('click', () => { const wb = XLSX.utils.book_new(); state.eventos.slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(e => { const eventTasksData = []; app.getAllTasks(e).forEach(t => { eventTasksData.push({ "Fase": t.faseNombre, "Nivel": t.nivel, "Tarea Padre": t.tareaPadre, "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.estado, "Responsables": app.getMiembrosNombres(t.responsables) }); }); const ws = XLSX.utils.json_to_sheet(eventTasksData); const sheetName = e.nombre.substring(0, 30).replace(/[\\/?*\[\]:]/g, ''); XLSX.utils.book_append_sheet(wb, ws, sheetName); }); XLSX.writeFile(wb, "Reporte_General_Eventos.xlsx"); });
+        document.getElementById('btn-download-finanzas-general').addEventListener('click', () => { const reportData = []; state.equipo.forEach(miembro => { (miembro.honorarios || []).forEach(p => reportData.push({ 'Miembro del Equipo': miembro.nombre, 'Tipo de Pago': 'Honorario', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); (miembro.desplazamientos || []).forEach(p => reportData.push({ 'Miembro del Equipo': miembro.nombre, 'Tipo de Pago': 'Desplazamiento', 'Concepto': p.concepto, 'Valor': p.valor, 'Fecha Inicio': p.fechaInicio, 'Fecha Fin': p.fechaFin })); }); if (reportData.length === 0) { alert('No hay pagos registrados.'); return; } const ws = XLSX.utils.json_to_sheet(reportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Pagos Generales"); XLSX.writeFile(wb, `Reporte_Financiero_General.xlsx`); });
         document.getElementById('btn-download-finanzas-individual').addEventListener('click', () => { const miembroId = document.getElementById('select-finanzas-persona').value; if (miembroId) { app.handleDownloadIndividualReport(miembroId); } else { alert('Por favor, seleccione una persona de la lista.'); } });
-        
-        // CORREGIDOS: Listeners de importación y exportación
         document.getElementById('btn-export-data').addEventListener('click', () => { const dataStr = JSON.stringify(state, null, 2); const dataBlob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `proyecto_backup_${new Date().toISOString().slice(0,10)}.json`; link.click(); URL.revokeObjectURL(url); });
         document.getElementById('import-file-input').addEventListener('change', (event) => { const file = event.target.files[0]; if (file && confirm("¿Importar archivo? Se sobreescribirán todos los datos actuales.")) { const reader = new FileReader(); reader.onload = (e) => { try { let importedState = JSON.parse(e.target.result); if (!importedState || !importedState.eventos || !importedState.equipo) { throw new Error("El archivo de backup no tiene el formato esperado (faltan 'eventos' o 'equipo')."); } importedState = app.migrateState(importedState); Object.keys(state).forEach(key => delete state[key]); Object.assign(state, importedState); app.saveState(); app.render(); alert("¡Datos importados con éxito!"); } catch (err) { alert("Error al importar el archivo: " + err.message); } }; reader.readAsText(file); } event.target.value = ''; });
+        document.getElementById('btn-add-otro-item').addEventListener('click', app.addOtroItem);
 
         // --- 7. INITIALIZATION ---
+        // Quill for event description
         quillEditor = new Quill('#evento-descripcion-editor', { modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['link', 'image', 'code-block'], ['clean'] ] }, placeholder: 'Escribe la descripción detallada, objetivos, participantes clave, etc.', theme: 'snow' });
         document.getElementById('btn-enter-edit-mode').addEventListener('click', () => { const viewContainer = document.querySelector('#descripcion-view-container .ql-editor'); const currentContent = viewContainer.innerHTML; if (viewContainer.querySelector('i')) { quillEditor.root.innerHTML = ''; } else { quillEditor.root.innerHTML = currentContent; } document.getElementById('descripcion-view-container').style.display = 'none'; document.getElementById('descripcion-editor-container').style.display = 'block'; document.getElementById('btn-enter-edit-mode').style.display = 'none'; document.getElementById('descripcion-actions-container').style.display = 'flex'; });
         document.getElementById('btn-cancel-descripcion').addEventListener('click', () => { document.getElementById('descripcion-view-container').style.display = 'block'; document.getElementById('descripcion-editor-container').style.display = 'none'; document.getElementById('btn-enter-edit-mode').style.display = 'inline-block'; document.getElementById('descripcion-actions-container').style.display = 'none'; });
         document.getElementById('btn-save-descripcion').addEventListener('click', app.handleSaveDescripcion);
+        
+        // Quill for task observation (new)
+        quillObservacionEditor = new Quill('#task-observacion-editor', { modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['clean'] ] }, placeholder: 'Escribe las observaciones de la tarea aquí...', theme: 'snow' });
+        document.getElementById('btn-enter-observacion-edit-mode').addEventListener('click', () => { const viewContainer = document.querySelector('#observacion-view-container .ql-editor'); const currentContent = viewContainer.innerHTML; if (viewContainer.querySelector('i')) { quillObservacionEditor.root.innerHTML = ''; } else { quillObservacionEditor.root.innerHTML = currentContent; } document.getElementById('observacion-view-container').style.display = 'none'; document.getElementById('observacion-editor-container').style.display = 'block'; document.getElementById('btn-enter-observacion-edit-mode').style.display = 'none'; document.getElementById('observacion-actions-container').style.display = 'flex'; });
+        document.getElementById('btn-cancel-observacion').addEventListener('click', () => { document.getElementById('observacion-view-container').style.display = 'block'; document.getElementById('observacion-editor-container').style.display = 'none'; document.getElementById('btn-enter-observacion-edit-mode').style.display = 'inline-block'; document.getElementById('observacion-actions-container').style.display = 'none'; });
+        document.getElementById('btn-save-observacion').addEventListener('click', app.handleSaveObservacion);
+
 
         app.loadState();
         app.render();
 
         window.app = app;
-        window.resetApp = () => { if (confirm('¿Estás seguro? Se borrarán todos los datos y la aplicación se recargará.')) { localStorage.removeItem('projectManagementState_v15'); location.reload(); } };
+        window.resetApp = () => { if (confirm('¿Estás seguro? Se borrarán todos los datos y la aplicación se recargará.')) { localStorage.removeItem('projectManagementState_v18'); location.reload(); } };
         window.verEstado = () => { console.log('Estado actual:', state); };
     });
 
