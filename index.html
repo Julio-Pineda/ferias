@@ -882,15 +882,21 @@
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const tasksByDate = {}; const eventsStartingByDate = {}; 
             state.eventos.forEach(evento => {
-                const eventStartDate = evento.fechaInicio ? new Date(evento.fechaInicio.split('T')[0]) : null;
+                // ---- INICIO DE LA CORRECCIÓN ----
+                // Se añade 'T00:00:00' para evitar problemas de zona horaria.
+                const eventStartDate = evento.fechaInicio ? new Date(evento.fechaInicio.split('T')[0] + 'T00:00:00') : null;
+                // ---- FIN DE LA CORRECCIÓN ----
                 if (eventStartDate && !isNaN(eventStartDate.getTime()) && eventStartDate.getFullYear() === year && eventStartDate.getMonth() === month) {
                     const datePart = eventStartDate.toISOString().split('T')[0];
                     if (!eventsStartingByDate[datePart]) eventsStartingByDate[datePart] = [];
                     eventsStartingByDate[datePart].push(evento);
                 }
                 app.getAllTasks(evento).forEach(tarea => {
-                    const startDate = tarea.fechaInicio ? new Date(tarea.fechaInicio.split('T')[0]) : null;
-                    const endDate = tarea.fechaFin ? new Date(tarea.fechaFin.split('T')[0]) : null;
+                    // ---- INICIO DE LA CORRECCIÓN ----
+                    // Se añade 'T00:00:00' para evitar problemas de zona horaria.
+                    const startDate = tarea.fechaInicio ? new Date(tarea.fechaInicio.split('T')[0] + 'T00:00:00') : null;
+                    const endDate = tarea.fechaFin ? new Date(tarea.fechaFin.split('T')[0] + 'T00:00:00') : null;
+                    // ---- FIN DE LA CORRECCIÓN ----
                     if (startDate && !isNaN(startDate.getTime())) { 
                         let currentDatePointer = new Date(startDate);
                         const endBoundary = endDate && !isNaN(endDate.getTime()) ? endDate.getTime() : startDate.getTime();
@@ -1093,8 +1099,8 @@
         document.getElementById('form-miembro').addEventListener('submit', e => { e.preventDefault(); const id = document.getElementById('miembro-id').value; const nombre = document.getElementById('miembro-nombre').value; if(id) { state.equipo.find(m => m.id == id).nombre = nombre; } else { state.equipo.push({ id: Date.now(), nombre, honorarios: [], desplazamientos: [] }); } app.saveState(); app.render(); app.closeModal(app.modals.miembro); });
         document.getElementById('btn-bulk-add-miembro').addEventListener('click', () => { document.getElementById('bulk-miembro-names').value = ''; app.openModal(app.modals.bulkMiembro); });
         document.getElementById('btn-save-bulk-miembros').addEventListener('click', app.handleBulkAddMiembros);
-        document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); app.renderCalendar(); });
-        document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); app.renderCalendar(); });
+        document.getElementById('prev-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); app.renderCalendar();});
+        document.getElementById('next-month-btn').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); app.renderCalendar();});
         document.getElementById('form-edit-pago').addEventListener('submit', e => { e.preventDefault(); const pagoId = document.getElementById('edit-pago-id').value; const tipo = document.getElementById('edit-pago-tipo').value; if (!currentMiembroIdFinanzas || !pagoId || !tipo) return; const miembro = state.equipo.find(m => m.id === currentMiembroIdFinanzas); const pago = (miembro[tipo] || []).find(p => p.id == pagoId); if (!pago) return; pago.concepto = document.getElementById('edit-pago-concepto').value; pago.valor = parseFloat(document.getElementById('edit-pago-valor').value); pago.fechaInicio = document.getElementById('edit-pago-fechaInicio').value; pago.fechaFin = document.getElementById('edit-pago-fechaFin').value; if (new Date(pago.fechaFin) < new Date(pago.fechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; } app.saveState(); app.renderPagosList(miembro, tipo, `${tipo}-list`); app.renderFinanzasTable(); app.closeModal(app.modals.editPago); });
         document.getElementById('btn-download-tareas-persona').addEventListener('click', () => { const data = []; state.eventos.slice().sort((a,b)=>(a.order||0)-(b.order||0)).forEach(e => { app.getAllTasks(e).forEach(t => { data.push({ "Responsables": app.getMiembrosNombres(t.responsables), "Evento": e.nombre, "Tipo de Proyecto": e.projectType || 'N/A', "Fase": t.faseNombre, "Nivel": t.nivel, "Tarea Padre": t.tareaPadre, "Tarea": t.texto, "Fecha Inicio": t.fechaInicio, "Fecha Fin": t.fechaFin, "Estado": t.estado }); }); }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tareas por Persona"); XLSX.writeFile(wb, "Reporte_Tareas_por_Persona.xlsx"); });
         document.getElementById('btn-download-avance-evento').addEventListener('click', () => { const data = state.eventos.slice().sort((a,b)=>(a.order||0)-(b.order||0)).map(e => { const { total, completadas } = app.getEventProgress(e); return { "Evento": e.nombre, "Fecha Inicio": e.fechaInicio, "Fecha Fin": e.fechaFin, "Tipo de Proyecto": e.projectType || 'N/A', "Total Tareas": total, "Completadas": completadas, "Avance (%)": total > 0 ? ((completadas / total) * 100).toFixed(2) : 0 }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Avance por Evento"); XLSX.writeFile(wb, "Reporte_Avance_por_Evento.xlsx"); });
