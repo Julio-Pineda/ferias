@@ -151,7 +151,7 @@
 
     #checklist-container { max-height: 70vh; overflow-y: auto; padding-right: 1rem; }
     .checklist-phase h4 { margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); padding-bottom: 0.5rem;}
-    .task-card { background-color: var(--card-background); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; padding: 1rem; transition: box-shadow 0.2s ease; }
+    .task-card { background-color: var(--card-background); border: 3px solid var(--border-color); border-radius: 22px; margin-bottom: 1rem; padding: 1rem; transition: box-shadow 0.2s ease; }
     .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     .task-main-line { display: flex; align-items: center; gap: 1rem; }
     .task-main-line input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--success-color); flex-shrink: 0; cursor: pointer;}
@@ -488,18 +488,45 @@
         app.activeQuillEditors = {};
         const emptyStateMsg = (msg) => `<div class="empty-state">${msg}</div>`;
 
-        const taskTemplate = {
-            id: null, texto: 'Nueva Tarea (Editar)', completado: false, 
-            responsables: [], fechaInicio: '', fechaFin: '', subtareas: [],
-            estado: 'En proceso', observacion: ''
-        };
+        // --- CORRECCIÓN 1 (PARTE A): Convertir plantillas en "fábricas" de objetos ---
+        // En lugar de tener un objeto de plantilla estático, creamos una función que devuelve
+        // un objeto NUEVO cada vez que se llama. Esto evita problemas de referencia circular.
+        const createTaskObject = (texto = 'Nueva Tarea (Editar)') => ({
+            id: Date.now() + Math.random(), // ID más robusto para evitar colisiones
+            texto: texto,
+            completado: false, 
+            responsables: [],
+            fechaInicio: '',
+            fechaFin: '',
+            subtareas: [],
+            estado: 'En proceso',
+            observacion: ''
+        });
 
-        const checklistTemplate = {
-            planeacion: [ { ...taskTemplate, id: 1, texto: 'Definir objetivos y alcance del evento' }, { ...taskTemplate, id: 2, texto: 'Elaborar presupuesto detallado' }, { ...taskTemplate, id: 3, texto: 'Seleccionar y reservar lugar del evento' }, { ...taskTemplate, id: 4, texto: 'Convocar unidades productivas/empresas participantes' }, ],
-            ejecucion: [ { ...taskTemplate, id: 5, texto: 'Montaje de stands y logística' }, { ...taskTemplate, id: 6, texto: 'Registro y atención de participantes' }, { ...taskTemplate, id: 7, texto: 'Desarrollo de agenda (charlas, ruedas de negocio)' }, { ...taskTemplate, id: 8, texto: 'Seguimiento y soporte durante el evento' }, ],
-            cierre: [ { ...taskTemplate, id: 9, texto: 'Desmontaje y limpieza del lugar' }, { ...taskTemplate, id: 10, texto: 'Recopilar encuestas de satisfacción' }, { ...taskTemplate, id: 11, texto: 'Consolidar base de datos de asistentes/contactos' }, ],
-            legalizacion: [ { ...taskTemplate, id: 12, texto: 'Elaborar informe final del evento' }, { ...taskTemplate, id: 13, texto: 'Gestionar pagos a proveedores y personal' }, { ...taskTemplate, id: 14, texto: 'Archivar toda la documentación y soportes' }, ]
-        };
+        const createChecklistTemplate = () => ({
+            planeacion: [
+                createTaskObject('Definir objetivos y alcance del evento'),
+                createTaskObject('Elaborar presupuesto detallado'),
+                createTaskObject('Seleccionar y reservar lugar del evento'),
+                createTaskObject('Convocar unidades productivas/empresas participantes'),
+            ],
+            ejecucion: [
+                createTaskObject('Montaje de stands y logística'),
+                createTaskObject('Registro y atención de participantes'),
+                createTaskObject('Desarrollo de agenda (charlas, ruedas de negocio)'),
+                createTaskObject('Seguimiento y soporte durante el evento'),
+            ],
+            cierre: [
+                createTaskObject('Desmontaje y limpieza del lugar'),
+                createTaskObject('Recopilar encuestas de satisfacción'),
+                createTaskObject('Consolidar base de datos de asistentes/contactos'),
+            ],
+            legalizacion: [
+                createTaskObject('Elaborar informe final del evento'),
+                createTaskObject('Gestionar pagos a proveedores y personal'),
+                createTaskObject('Archivar toda la documentación y soportes'),
+            ]
+        });
 
         // --- 2. MODALS AND UTILITIES ---
         app.modals = { 
@@ -539,7 +566,7 @@
 
             data.equipo.forEach(miembro => { if (!miembro.honorarios) miembro.honorarios = []; if (!miembro.desplazamientos) miembro.desplazamientos = []; [...miembro.honorarios, ...miembro.desplazamientos].forEach(pago => { if (pago.fecha && pago.fechaInicio === undefined) { pago.fechaInicio = pago.fecha; pago.fechaFin = pago.fecha; delete pago.fecha; } if (pago.fechaInicio === undefined) pago.fechaInicio = ''; if (pago.fechaFin === undefined) pago.fechaFin = ''; }); });
 
-            data.eventos.forEach((evento, index) => { if (evento.order === undefined) evento.order = index; if (evento.fecha && evento.fechaInicio === undefined) { evento.fechaInicio = evento.fecha; delete evento.fecha; } if (evento.fechaInicio === undefined) evento.fechaInicio = ''; if (evento.fechaFin === undefined) evento.fechaFin = ''; if (evento.category !== undefined && evento.projectType === undefined) { evento.projectType = evento.category; delete evento.category; } if (evento.projectType === undefined) evento.projectType = 'Otros'; if (evento.descripcion === undefined) evento.descripcion = ''; if (!evento.fases) evento.fases = JSON.parse(JSON.stringify(checklistTemplate)); const migrateTask = (tarea) => { if (tarea.responsable && !Array.isArray(tarea.responsables)) { tarea.responsables = tarea.responsable ? [String(tarea.responsable)] : []; delete tarea.responsable; } if (!tarea.responsables) tarea.responsables = []; if (tarea.fecha && !tarea.fechaInicio) { tarea.fechaInicio = tarea.fecha; tarea.fechaFin = ''; delete tarea.fecha; } if (tarea.fechaInicio === undefined) tarea.fechaInicio = ''; if (tarea.fechaFin === undefined) tarea.fechaFin = ''; if (tarea.subtareas === undefined) tarea.subtareas = []; else if (Array.isArray(tarea.subtareas)) tarea.subtareas.forEach(sub => migrateTask(sub)); if (tarea.estado === undefined) tarea.estado = tarea.completado ? 'Completado' : 'En proceso'; if (tarea.observacion === undefined) tarea.observacion = ''; }; if(evento.fases) { Object.values(evento.fases).flat().forEach(task => migrateTask(task)); } });
+            data.eventos.forEach((evento, index) => { if (evento.order === undefined) evento.order = index; if (evento.fecha && evento.fechaInicio === undefined) { evento.fechaInicio = evento.fecha; delete evento.fecha; } if (evento.fechaInicio === undefined) evento.fechaInicio = ''; if (evento.fechaFin === undefined) evento.fechaFin = ''; if (evento.category !== undefined && evento.projectType === undefined) { evento.projectType = evento.category; delete evento.category; } if (evento.projectType === undefined) evento.projectType = 'Otros'; if (evento.descripcion === undefined) evento.descripcion = ''; if (!evento.fases) evento.fases = createChecklistTemplate(); const migrateTask = (tarea) => { if (tarea.responsable && !Array.isArray(tarea.responsables)) { tarea.responsables = tarea.responsable ? [String(tarea.responsable)] : []; delete tarea.responsable; } if (!tarea.responsables) tarea.responsables = []; if (tarea.fecha && !tarea.fechaInicio) { tarea.fechaInicio = tarea.fecha; tarea.fechaFin = ''; delete tarea.fecha; } if (tarea.fechaInicio === undefined) tarea.fechaInicio = ''; if (tarea.fechaFin === undefined) tarea.fechaFin = ''; if (tarea.subtareas === undefined) tarea.subtareas = []; else if (Array.isArray(tarea.subtareas)) tarea.subtareas.forEach(sub => migrateTask(sub)); if (tarea.estado === undefined) tarea.estado = tarea.completado ? 'Completado' : 'En proceso'; if (tarea.observacion === undefined) tarea.observacion = ''; }; if(evento.fases) { Object.values(evento.fases).flat().forEach(task => migrateTask(task)); } });
             data.eventos.sort((a,b) => (a.order || 0) - (b.order || 0)).forEach((e, i) => e.order = i);
             return data;
         };
@@ -565,13 +592,10 @@
         // --- 4. RENDER FUNCTIONS (VIEWS) ---
         app.render = () => { app.renderCharts(); app.renderProjectTabs(); app.renderEventGrid(currentEventProjectTypeFilter); app.renderEquipoTable(); app.renderCalendar(); app.renderFinanzasTable(); app.renderReportOptions(); app.renderOtrosModule(); };
         
-        // ---- FUNCIÓN DE GRÁFICOS CORREGIDA ----
         app.renderCharts = () => {
             const data = app.calculateAnalytics();
             const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
             const borderColor = getComputedStyle(document.body).getPropertyValue('--border-color');
-
-            // Colores fijos, no cambian con el modo oscuro
             const greenColor = '#28a745';
             const redColor = '#dc3545';
             const blueColor = '#003366';
@@ -646,13 +670,100 @@
                 }
             });
         };
-        // ---- FIN DE LA CORRECCIÓN ----
-
+       
         app.renderProjectTabs = () => { const projectTypeNav = document.getElementById('event-project-type-nav'); const projectTypeListCreate = document.getElementById('proyecto-tipos-list'); const projectTypeListEdit = document.getElementById('proyecto-tipos-list-edit'); projectTypeNav.innerHTML = ''; projectTypeListCreate.innerHTML = ''; projectTypeListEdit.innerHTML = ''; const existingProjectTypes = new Set(state.eventos.map(e => e.projectType).filter(Boolean)); const allProjectTypes = Array.from(new Set([...state.eventProjectTypes, ...existingProjectTypes])).sort(); const allBtn = document.createElement('button'); allBtn.className = `project-type-tab-link ${currentEventProjectTypeFilter === 'all' ? 'active' : ''}`; allBtn.dataset.projectType = 'all'; allBtn.textContent = 'Todos'; allBtn.addEventListener('click', () => { currentEventProjectTypeFilter = 'all'; app.renderEventGrid(currentEventProjectTypeFilter); app.renderProjectTabs(); }); projectTypeNav.appendChild(allBtn); allProjectTypes.forEach(projectType => { const btn = document.createElement('button'); btn.className = `project-type-tab-link ${currentEventProjectTypeFilter === projectType ? 'active' : ''}`; btn.dataset.projectType = projectType; btn.textContent = projectType; btn.addEventListener('click', () => { currentEventProjectTypeFilter = projectType; app.renderEventGrid(currentEventProjectTypeFilter); app.renderProjectTabs(); }); projectTypeNav.appendChild(btn); const optionCreate = document.createElement('option'); optionCreate.value = projectType; projectTypeListCreate.appendChild(optionCreate); const optionEdit = document.createElement('option'); optionEdit.value = projectType; projectTypeListEdit.appendChild(optionEdit); }); };
         app.renderEventGrid = (projectTypeFilter = 'all') => { const container = document.getElementById('event-grid-container'); let filteredEvents = projectTypeFilter === 'all' ? state.eventos : state.eventos.filter(e => e.projectType === projectTypeFilter); filteredEvents.sort((a, b) => (a.order || 0) - (b.order || 0)); if (filteredEvents.length === 0) { let msg = `No hay eventos en el tipo de proyecto "${projectTypeFilter}".`; if (projectTypeFilter === 'all' && state.eventos.length === 0) { msg = "No hay eventos creados. ¡Crea el primero para empezar!"; } container.innerHTML = emptyStateMsg(msg); return; } container.innerHTML = ''; filteredEvents.forEach(evento => { const { total, completadas } = app.getEventProgress(evento); const avance = total > 0 ? Math.round((completadas / total) * 100) : 0; const card = document.createElement('div'); card.className = 'event-card-item'; card.dataset.eventId = evento.id; card.innerHTML = ` <div class="event-card-item-header"> <h4 onclick="app.handleEditEventNameClick(this, '${evento.id}')" title="Haz clic para editar">${evento.nombre}</h4> <button class="btn btn-danger btn-sm" onclick="app.handleDeleteEvento('${evento.id}')"><i class="fas fa-trash"></i></button> </div> <div class="event-card-item-body"> <div class="event-card-progress"> <div class="progress-chart-container"> <canvas id="progress-${evento.id}"></canvas> <div class="progress-chart-text" style="color:${app.getSemaforoColor(avance)};">${avance}%</div> </div> <div class="event-card-info"> <strong>Fecha Inicio:</strong> ${app.formatDate(evento.fechaInicio)}<br> <strong>Fecha Fin:</strong> ${app.formatDate(evento.fechaFin)}<br> <strong>Tipo de Proyecto:</strong> ${evento.projectType || 'N/A'}<br> <strong>Tareas:</strong> ${completadas}/${total} </div> </div> </div> <div class="event-card-item-footer"> <button class="btn btn-secondary" onclick="app.openDescripcionModal('${evento.id}')"><i class="fas fa-file-alt"></i> Descripción</button> <button class="btn btn-edit-details" onclick="app.handleEditEventDetails('${evento.id}')"><i class="fas fa-info-circle"></i> Detalles</button> <button class="btn btn-manage" onclick="app.renderChecklistModal('${evento.id}')"><i class="fas fa-edit"></i> Tareas</button> </div>`; container.appendChild(card); new Chart(document.getElementById(`progress-${evento.id}`), { type: 'doughnut', data: { datasets: [{ data: [avance, 100 - avance], backgroundColor: [app.getSemaforoColor(avance), '#e9ecef'], borderWidth: 0 }] }, options: { cutout: '70%', plugins: { tooltip: { enabled: false } } } }); }); if (sortableInstance) sortableInstance.destroy(); sortableInstance = new Sortable(container, { animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', onEnd: (evt) => { const newIdOrder = Array.from(evt.to.children).map(card => card.dataset.eventId); newIdOrder.forEach((id, index) => { const evento = state.eventos.find(e => e.id === id); if(evento) evento.order = index; }); let maxVisibleOrder = newIdOrder.length; state.eventos .filter(e => !newIdOrder.includes(e.id)) .sort((a,b) => (a.order || 0) - (b.order || 0)) .forEach(e => { e.order = maxVisibleOrder++; }); app.saveState(); app.renderCharts(); } }); };
         app.renderEquipoTable = () => { const container = document.getElementById('equipo-table-container'); const tbody = document.getElementById('tabla-equipo').querySelector('tbody'); if (state.equipo.length === 0) { container.innerHTML = emptyStateMsg("No hay miembros en el equipo. Añade el primero."); tbody.innerHTML = ''; return; } container.querySelector('table').style.display = ''; tbody.innerHTML = ''; state.equipo.forEach(miembro => { const tareasAsignadas = state.eventos.flatMap(e => app.getAllTasks(e)).filter(t => t.responsables.includes(String(miembro.id))).length; tbody.innerHTML += `<tr><td>${miembro.nombre}</td><td>${tareasAsignadas}</td><td class="actions"><button class="btn btn-sm btn-warning" onclick="app.handleEditMiembro(${miembro.id})"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="app.handleDeleteMiembro(${miembro.id})"><i class="fas fa-trash"></i></button></td></tr>`; }); };
         app.renderFinanzasTable = () => { const container = document.getElementById('finanzas-table-container'); const tbody = document.getElementById('tabla-finanzas').querySelector('tbody'); if (state.equipo.length === 0) { container.innerHTML = emptyStateMsg("No hay miembros de equipo para gestionar finanzas."); tbody.innerHTML = ''; return; } container.querySelector('table').style.display = ''; tbody.innerHTML = ''; state.equipo.forEach(miembro => { const totalHonorarios = (miembro.honorarios || []).reduce((sum, p) => sum + (Number(p.valor) || 0), 0); const totalDesplazamientos = (miembro.desplazamientos || []).reduce((sum, p) => sum + (Number(p.valor) || 0), 0); tbody.innerHTML += `<tr><td>${miembro.nombre}</td><td>${app.formatCurrency(totalHonorarios)}</td><td>${app.formatCurrency(totalDesplazamientos)}</td><td class="actions"><button class="btn btn-sm btn-primary" onclick="app.showFinanzasDetailView(${miembro.id})"><i class="fas fa-search-dollar"></i> Gestionar Pagos</button></td></tr>`; }); };
-        app.renderChecklistModal = (eventoId) => { const evento = state.eventos.find(e => e.id === eventoId); if (!evento) return; document.getElementById('checklist-title').textContent = `Gestionar Tareas de: ${evento.nombre}`; const container = document.getElementById('checklist-container'); container.innerHTML = ''; const statusOptions = ['En proceso', 'Aplazado', 'Atrasado', 'Cancelado']; const createTaskHtml = (tarea, tipo, path) => { const { eId, f, tId, stId } = path; const isSubtask = tipo === 'subtask'; const cardClass = isSubtask ? 'task-card subtask-card' : 'task-card'; const tieneResponsables = tarea.responsables && tarea.responsables.length > 0; const onToggle = isSubtask ? `app.handleToggleSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.handleToggleTask('${eId}', '${f}', '${tId}')`; const onEditText = isSubtask ? `app.handleEditSubtaskText(this, '${eId}', '${f}', '${tId}', '${stId}')` : `app.handleEditTaskText(this, '${eId}', '${f}', '${tId}')`; const onEditDate = isSubtask ? `app.handleEditSubtaskDate('${eId}', '${f}', '${tId}', '${stId}', arguments[0], this.value)` : `app.handleEditTaskDate('${eId}', '${f}', '${tId}', arguments[0], this.value)`; const openRespModal = isSubtask ? `app.openResponsablesModalForSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.openResponsablesModalForTask('${eId}', '${f}', '${tId}')`; const onDelete = isSubtask ? `app.handleDeleteSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.handleDeleteTask('${eId}', '${f}', '${tId}')`; const onUpdateStatus = isSubtask ? `app.handleUpdateSubtaskStatus('${eId}', '${f}', '${tId}', '${stId}', this.value)` : `app.handleUpdateTaskStatus('${eId}', '${f}', '${tId}', this.value)`; const openObsModal = isSubtask ? `app.openObservacionModal('${eId}', '${f}', '${tId}', '${stId}')` : `app.openObservacionModal('${eId}', '${f}', '${tId}')`; const openTransferModal = isSubtask ? `app.openTransferModal('${eId}', '${f}', '${tId}', '${stId}')` : `app.openTransferModal('${eId}', '${f}', '${tId}')`; let estadoElemento; const estadoNormalizado = tarea.estado.replace(/\s+/g, '-'); if (tarea.completado) { estadoElemento = `<span class="status-badge status-Completado">Completado</span>`; } else { estadoElemento = `<div class="status-badge-container"><span class="status-badge status-${estadoNormalizado}" onclick="this.style.display='none'; this.nextElementSibling.style.display='inline-block'; this.nextElementSibling.focus();">${tarea.estado}</span><select class="status-select" style="display:none;" onchange="${onUpdateStatus}" onblur="this.style.display='none'; this.previousElementSibling.style.display='inline-block';">${statusOptions.map(s => `<option value="${s.toLowerCase().replace(/\s+/g, '-')}" ${tarea.estado === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>`; } let taskHtml = `<div class="${cardClass} ${tarea.completado ? 'completed' : ''}" data-task-id="${isSubtask ? stId : tId}"><div class="task-main-line"><input type="checkbox" onchange="${onToggle}" ${tarea.completado ? 'checked' : ''}><div class="task-description"><input type="text" value="${tarea.texto.replace(/"/g, '&quot;')}" onchange="${onEditText}" onblur="${onEditText}"></div><div class="task-actions">${!isSubtask ? `<button class="icon-btn" title="Añadir Sub-tarea" onclick="app.handleAddSubtask('${eId}', '${f}', '${tId}')"><i class="fas fa-plus-circle"></i></button>` : ''}<button class="icon-btn" title="Transferir Tarea" onclick="${openTransferModal}"><i class="fas fa-exchange-alt"></i></button><button class="icon-btn" title="Observaciones" onclick="${openObsModal}"><i class="fas fa-comment-dots"></i></button><button class="icon-btn" title="Eliminar Tarea" onclick="${onDelete}"><i class="fas fa-trash-alt" style="color:var(--danger-color)"></i></button></div></div><div class="task-details"><div class="task-detail-item"><label>Estado:</label>${estadoElemento}</div><div class="task-detail-item"><label><i class="fas fa-calendar-alt"></i></label><input type="datetime-local" value="${tarea.fechaInicio || ''}" onchange="${onEditDate.replace('arguments[0]', "'fechaInicio'")}"><span style="margin:0 0.25rem;">-</span><input type="datetime-local" value="${tarea.fechaFin || ''}" onchange="${onEditDate.replace('arguments[0]', "'fechaFin'")}'></div><div class="task-detail-item"><label><i class="fas fa-user"></i></label><div class="responsables-display" title="${app.getMiembrosNombres(tarea.responsables)}">${app.getMiembrosNombres(tarea.responsables) || 'Sin asignar'}</div><button class="btn btn-sm ${tieneResponsables ? 'btn-success' : 'btn-secondary'}" onclick="${openRespModal}">${tieneResponsables ? 'Asignado' : 'Asignar'}</button></div></div></div>`; if (!isSubtask && tarea.subtareas && tarea.subtareas.length > 0) { taskHtml += `<div class="subtasks-container">`; tarea.subtareas.forEach(subtarea => { taskHtml += createTaskHtml(subtarea, 'subtask', {eId, f, tId, stId: subtarea.id}); }); taskHtml += `</div>`; } return taskHtml; }; for (const [fase, tareas] of Object.entries(evento.fases)) { let faseHtml = `<div class="checklist-phase" data-fase-id="${fase}"><h4>${fase.charAt(0).toUpperCase() + fase.slice(1)}</h4><div id="task-list-${fase}">`; if(Array.isArray(tareas)) { tareas.forEach(tarea => { faseHtml += createTaskHtml(tarea, 'task', {eId: evento.id, f: fase, tId: tarea.id}); }); } faseHtml += `</div><div class="add-task-btn-container"><button class="btn btn-add-task btn-sm" onclick="app.handleAddTask('${evento.id}', '${fase}')"><i class="fas fa-plus"></i> Añadir Tarea a ${fase}</button></div></div>`; container.innerHTML += faseHtml; } app.openModal(app.modals.checklist); };
+        
+        app.renderChecklistModal = (eventoId) => {
+            const evento = state.eventos.find(e => e.id === eventoId);
+            if (!evento) return;
+            document.getElementById('checklist-title').textContent = `Gestionar Tareas de: ${evento.nombre}`;
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = '';
+            const statusOptions = ['En proceso', 'Aplazado', 'Atrasado', 'Cancelado'];
+
+            const createTaskHtml = (tarea, tipo, path) => {
+                const { eId, f, tId, stId } = path;
+                const isSubtask = tipo === 'subtask';
+                const cardClass = isSubtask ? 'task-card subtask-card' : 'task-card';
+                const tieneResponsables = tarea.responsables && tarea.responsables.length > 0;
+                const onToggle = isSubtask ? `app.handleToggleSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.handleToggleTask('${eId}', '${f}', '${tId}')`;
+                const onEditText = isSubtask ? `app.handleEditSubtaskText(this, '${eId}', '${f}', '${tId}', '${stId}')` : `app.handleEditTaskText(this, '${eId}', '${f}', '${tId}')`;
+                const onEditDate = isSubtask ? `app.handleEditSubtaskDate('${eId}', '${f}', '${tId}', '${stId}', arguments[0], this.value)` : `app.handleEditTaskDate('${eId}', '${f}', '${tId}', arguments[0], this.value)`;
+                const openRespModal = isSubtask ? `app.openResponsablesModalForSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.openResponsablesModalForTask('${eId}', '${f}', '${tId}')`;
+                const onDelete = isSubtask ? `app.handleDeleteSubtask('${eId}', '${f}', '${tId}', '${stId}')` : `app.handleDeleteTask('${eId}', '${f}', '${tId}')`;
+                const onUpdateStatus = isSubtask ? `app.handleUpdateSubtaskStatus('${eId}', '${f}', '${tId}', '${stId}', this.value)` : `app.handleUpdateTaskStatus('${eId}', '${f}', '${tId}', this.value)`;
+                const openObsModal = isSubtask ? `app.openObservacionModal('${eId}', '${f}', '${tId}', '${stId}')` : `app.openObservacionModal('${eId}', '${f}', '${tId}')`;
+                const openTransferModal = isSubtask ? `app.openTransferModal('${eId}', '${f}', '${tId}', '${stId}')` : `app.openTransferModal('${eId}', '${f}', '${tId}')`;
+
+                let estadoElemento;
+                const estadoNormalizado = tarea.estado.replace(/\s+/g, '-');
+                if (tarea.completado) {
+                    estadoElemento = `<span class="status-badge status-Completado">Completado</span>`;
+                } else {
+                    estadoElemento = `<div class="status-badge-container"><span class="status-badge status-${estadoNormalizado}" onclick="this.style.display='none'; this.nextElementSibling.style.display='inline-block'; this.nextElementSibling.focus();">${tarea.estado}</span><select class="status-select" style="display:none;" onchange="${onUpdateStatus}" onblur="this.style.display='none'; this.previousElementSibling.style.display='inline-block';">${statusOptions.map(s => `<option value="${s.toLowerCase().replace(/\s+/g, '-')}" ${tarea.estado === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>`;
+                }
+                
+                // --- CORRECCIÓN 2: Eliminar la comilla simple extra ---
+                // Se ha eliminado una comilla simple (') que sobraba al final del `onchange` del segundo input de fecha.
+                const fechaFinOnChange = onEditDate.replace('arguments[0]', "'fechaFin'");
+
+                let taskHtml = `
+                    <div class="${cardClass} ${tarea.completado ? 'completed' : ''}" data-task-id="${isSubtask ? stId : tId}">
+                        <div class="task-main-line">
+                            <input type="checkbox" onchange="${onToggle}" ${tarea.completado ? 'checked' : ''}>
+                            <div class="task-description">
+                                <input type="text" value="${tarea.texto.replace(/"/g, '"')}" onchange="${onEditText}" onblur="${onEditText}">
+                            </div>
+                            <div class="task-actions">
+                                ${!isSubtask ? `<button class="icon-btn" title="Añadir Sub-tarea" onclick="app.handleAddSubtask('${eId}', '${f}', '${tId}')"><i class="fas fa-plus-circle"></i></button>` : ''}
+                                <button class="icon-btn" title="Transferir Tarea" onclick="${openTransferModal}"><i class="fas fa-exchange-alt"></i></button>
+                                <button class="icon-btn" title="Observaciones" onclick="${openObsModal}"><i class="fas fa-comment-dots"></i></button>
+                                <button class="icon-btn" title="Eliminar Tarea" onclick="${onDelete}"><i class="fas fa-trash-alt" style="color:var(--danger-color)"></i></button>
+                            </div>
+                        </div>
+                        <div class="task-details">
+                            <div class="task-detail-item">
+                                <label>Estado:</label>${estadoElemento}
+                            </div>
+                            <div class="task-detail-item">
+                                <label><i class="fas fa-calendar-alt"></i></label>
+                                <input type="datetime-local" value="${tarea.fechaInicio || ''}" onchange="${onEditDate.replace('arguments[0]', "'fechaInicio'")}"/>
+                                <span style="margin:0 0.25rem;">-</span>
+                                <input type="datetime-local" value="${tarea.fechaFin || ''}" onchange="${fechaFinOnChange}"/>
+                            </div>
+                            <div class="task-detail-item">
+                                <label><i class="fas fa-user"></i></label>
+                                <div class="responsables-display" title="${app.getMiembrosNombres(tarea.responsables)}">${app.getMiembrosNombres(tarea.responsables) || 'Sin asignar'}</div>
+                                <button class="btn btn-sm ${tieneResponsables ? 'btn-success' : 'btn-secondary'}" onclick="${openRespModal}">${tieneResponsables ? 'Asignado' : 'Asignar'}</button>
+                            </div>
+                        </div>
+                    </div>`;
+
+                if (!isSubtask && tarea.subtareas && tarea.subtareas.length > 0) {
+                    taskHtml += `<div class="subtasks-container">`;
+                    tarea.subtareas.forEach(subtarea => {
+                        taskHtml += createTaskHtml(subtarea, 'subtask', {eId, f, tId, stId: subtarea.id});
+                    });
+                    taskHtml += `</div>`;
+                }
+                return taskHtml;
+            };
+
+            for (const [fase, tareas] of Object.entries(evento.fases)) {
+                let faseHtml = `<div class="checklist-phase" data-fase-id="${fase}"><h4>${fase.charAt(0).toUpperCase() + fase.slice(1)}</h4><div id="task-list-${fase}">`;
+                if(Array.isArray(tareas)) {
+                    tareas.forEach(tarea => {
+                        faseHtml += createTaskHtml(tarea, 'task', {eId: evento.id, f: fase, tId: tarea.id});
+                    });
+                }
+                faseHtml += `</div><div class="add-task-btn-container"><button class="btn btn-add-task btn-sm" onclick="app.handleAddTask('${evento.id}', '${fase}')"><i class="fas fa-plus"></i> Añadir Tarea a ${fase}</button></div></div>`;
+                container.innerHTML += faseHtml;
+            }
+            app.openModal(app.modals.checklist);
+        };
         app.renderCalendar = () => { const grid = document.getElementById('calendar-grid'); const monthYearEl = document.getElementById('calendar-month-year'); grid.innerHTML = ''; const year = currentCalendarDate.getFullYear(); const month = currentCalendarDate.getMonth(); monthYearEl.textContent = `${currentCalendarDate.toLocaleString('es-ES', { month: 'long' })} ${year}`.toUpperCase(); const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate(); const tasksByDate = {}; const eventsStartingByDate = {}; state.eventos.forEach(evento => { const eventStartDate = evento.fechaInicio ? new Date(evento.fechaInicio.split('T')[0] + 'T00:00:00') : null; if (eventStartDate && !isNaN(eventStartDate.getTime()) && eventStartDate.getFullYear() === year && eventStartDate.getMonth() === month) { const datePart = eventStartDate.toISOString().split('T')[0]; if (!eventsStartingByDate[datePart]) eventsStartingByDate[datePart] = []; eventsStartingByDate[datePart].push(evento); } app.getAllTasks(evento).forEach(tarea => { const startDate = tarea.fechaInicio ? new Date(tarea.fechaInicio.split('T')[0] + 'T00:00:00') : null; const endDate = tarea.fechaFin ? new Date(tarea.fechaFin.split('T')[0] + 'T00:00:00') : null; if (startDate && !isNaN(startDate.getTime())) { let currentDatePointer = new Date(startDate); const endBoundary = endDate && !isNaN(endDate.getTime()) ? endDate.getTime() : startDate.getTime(); while (currentDatePointer.getTime() <= endBoundary) { if (currentDatePointer.getFullYear() === year && currentDatePointer.getMonth() === month) { const datePart = currentDatePointer.toISOString().split('T')[0]; if (!tasksByDate[datePart]) tasksByDate[datePart] = []; tasksByDate[datePart].push(tarea); } currentDatePointer.setDate(currentDatePointer.getDate() + 1); } } }); }); for (let i = 0; i < firstDay; i++) { grid.innerHTML += `<div class="calendar-day other-month"></div>`; } for (let day = 1; day <= daysInMonth; day++) { const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const dayEl = document.createElement('div'); dayEl.className = 'calendar-day'; dayEl.innerHTML = `<div class="day-number">${day}</div>`; const isEventStartDate = eventsStartingByDate[dateStr] && eventsStartingByDate[dateStr].length > 0; const hasTasks = tasksByDate[dateStr] && tasksByDate[dateStr].length > 0; if (isEventStartDate) dayEl.classList.add('event-start-day'); if (hasTasks) { dayEl.classList.add('has-tasks'); dayEl.innerHTML += `<div class="day-tasks-badge">${tasksByDate[dateStr].length}</div>`; } if (hasTasks || isEventStartDate) { dayEl.style.cursor = 'pointer'; dayEl.onclick = () => app.showDayDetails(dateStr, tasksByDate[dateStr] || [], eventsStartingByDate[dateStr] || []); } grid.appendChild(dayEl); } };
         app.renderReportOptions = () => { const select = document.getElementById('select-finanzas-persona'); if (!select) return; select.innerHTML = '<option value="">-- Seleccione una persona --</option>'; state.equipo.forEach(miembro => { select.innerHTML += `<option value="${miembro.id}">${miembro.nombre}</option>`; }); };
         app.renderOtrosModule = () => { const container = document.getElementById('otros-container'); if (!container) return; container.innerHTML = ''; if (state.otros.length === 0) { container.innerHTML = emptyStateMsg("No hay listas de contenido. ¡Añade la primera!"); return; } state.otros.forEach(item => { const itemEl = document.createElement('div'); itemEl.className = 'otro-item'; itemEl.dataset.id = item.id; itemEl.innerHTML = ` <div class="otro-header" onclick="app.toggleOtroItem(this)"> <h4 onclick="event.stopPropagation(); app.editOtroItemTitle(this, '${item.id}')">${item.title}</h4> <div class="task-actions"> <button class="icon-btn toggle-icon" title="Expandir/Contraer"><i class="fas fa-chevron-down"></i></button> <button class="icon-btn" title="Eliminar lista" onclick="event.stopPropagation(); app.deleteOtroItem('${item.id}')"><i class="fas fa-trash-alt" style="color:var(--danger-color)"></i></button> </div> </div> <div class="otro-content"> <div id="otro-editor-${item.id}"></div> </div> `; container.appendChild(itemEl); }); };
@@ -660,12 +771,31 @@
         // --- 5. EVENT HANDLERS (CONTROLLERS) ---
         app.toggleDarkMode = (forceDark, save = true) => { const body = document.body; const toggleButton = document.getElementById('dark-mode-toggle'); const isDark = typeof forceDark === 'boolean' ? forceDark : !body.classList.contains('dark-mode'); body.classList.toggle('dark-mode', isDark); toggleButton.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; if (save) { state.settings.darkMode = isDark; app.saveState(); } app.renderCharts(); };
         app.handleTabClick = (e) => { document.querySelectorAll('.tab-link, .tab-content').forEach(el => el.classList.remove('active')); e.currentTarget.classList.add('active'); document.getElementById(e.currentTarget.dataset.tab).classList.add('active'); app.render(); };
-        app.handleAddTask = (eId, f) => { state.eventos.find(e => e.id === eId).fases[f].push({ ...taskTemplate, id: Date.now() }); app.saveState(); app.renderChecklistModal(eId); };
+        
+        // --- CORRECCIÓN 1 (PARTE B): Usar la nueva función para crear tareas ---
+        app.handleAddTask = (eId, f) => {
+            const evento = state.eventos.find(e => e.id === eId);
+            if (evento) {
+                evento.fases[f].push(createTaskObject()); // Usar la fábrica
+                app.saveState();
+                app.renderChecklistModal(eId);
+            }
+        };
+
         app.handleDeleteTask = (eId, f, tId) => { if(confirm('¿Seguro que desea eliminar esta tarea y todas sus sub-tareas?')) { const e = state.eventos.find(x => x.id === eId); e.fases[f] = e.fases[f].filter(t => t.id != tId); app.saveState(); app.render(); app.renderChecklistModal(eId); } };
         app.handleToggleTask = (eId, f, tId) => { const task = state.eventos.find(e => e.id === eId).fases[f].find(x => x.id == tId); task.completado = !task.completado; task.estado = task.completado ? 'Completado' : 'En proceso'; if (task.subtareas && Array.isArray(task.subtareas)) { task.subtareas.forEach(subtask => {subtask.completado = task.completado; subtask.estado = subtask.completado ? 'Completado' : 'En proceso';}); } app.saveState(); app.render(); app.renderChecklistModal(eId); };
         app.handleEditTaskText = (input, eId, f, tId) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).texto = input.value; app.saveState(); };
         app.handleEditTaskDate = (eId, f, tId, tipoFecha, date) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId)[tipoFecha] = date; app.saveState(); app.render(); };
-        app.handleAddSubtask = (eId, f, tId) => { const parentTask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId); if (!parentTask.subtareas) parentTask.subtareas = []; parentTask.subtareas.push({ ...taskTemplate, id: Date.now(), texto: 'Nueva Sub-tarea (Editar)' }); app.saveState(); app.renderChecklistModal(eId); };
+        
+        // --- CORRECCIÓN 1 (PARTE C): Usar la nueva función para crear subtareas ---
+        app.handleAddSubtask = (eId, f, tId) => {
+            const parentTask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId);
+            if (!parentTask.subtareas) parentTask.subtareas = [];
+            parentTask.subtareas.push(createTaskObject('Nueva Sub-tarea (Editar)')); // Usar la fábrica
+            app.saveState();
+            app.renderChecklistModal(eId);
+        };
+        
         app.handleDeleteSubtask = (eId, f, tId, stId) => { if(confirm('¿Seguro que desea eliminar esta sub-tarea?')) { const parentTask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId); parentTask.subtareas = parentTask.subtareas.filter(st => st.id != stId); app.saveState(); app.render(); app.renderChecklistModal(eId); } };
         app.handleToggleSubtask = (eId, f, tId, stId) => { const subtask = state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).subtareas.find(st => st.id == stId); subtask.completado = !subtask.completado; subtask.estado = subtask.completado ? 'Completado' : 'En proceso'; app.saveState(); app.render(); app.renderChecklistModal(eId); };
         app.handleEditSubtaskText = (input, eId, f, tId, stId) => { state.eventos.find(e => e.id === eId).fases[f].find(t => t.id == tId).subtareas.find(st => st.id == stId).texto = input.value; app.saveState(); };
@@ -679,9 +809,8 @@
         app.handleDeleteEvento = (id) => { if(confirm('¿Seguro que desea eliminar este evento?')) { state.eventos = state.eventos.filter(e => e.id !== id); state.eventos.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach((evento, index) => { evento.order = index; }); app.saveState(); app.render(); } };
         app.handleEditMiembro = (id) => { const m = state.equipo.find(x => x.id === id); document.getElementById('miembro-id').value = m.id; document.getElementById('miembro-nombre').value = m.nombre; document.getElementById('modal-miembro-title').innerText = 'Editar Miembro'; app.openModal(app.modals.miembro); };
         app.handleDeleteMiembro = (id) => { if(confirm('¿Está seguro? Las tareas y pagos asignados a esta persona se eliminarán.')) { state.equipo = state.equipo.filter(m => m.id !== id); state.eventos.forEach(e => app.getAllTasks(e).forEach(t => { t.responsables = t.responsables.filter(rId => rId != id); })); app.saveState(); app.render(); } };
-        app.showDayDetails = (dateStr, tasks, events) => { const dateObj = new Date(dateStr + 'T00:00:00'); document.getElementById('day-tasks-title').textContent = `Detalle del Día: ${dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`; const listEl = document.getElementById('day-tasks-list'); let contentHtml = ''; if (events && events.length > 0) { contentHtml += `<h4 style="color: var(--danger-color); margin-bottom: 0.5rem;"><i class="fas fa-play-circle"></i> Eventos que inician este día:</h4><ul style="list-style: none; padding: 0;">`; events.forEach(event => { contentHtml += `<li><strong>${event.nombre}</strong><br><small><em>Tipo:</em> ${event.projectType || 'N/A'}</small><br><small><em>Inicio:</em> ${app.formatDate(event.fechaInicio)} | <em>Fin:</em> ${app.formatDate(event.fechaFin)}</small></li>`; }); contentHtml += `</ul>`; if (tasks && tasks.length > 0) { contentHtml += `<hr style="margin: 1.5rem 0; border-top: 1px dashed var(--border-color);">`; } } if (tasks && tasks.length > 0) { contentHtml += `<h4 style="color: var(--primary-color); margin-bottom: 0.5rem;"><i class="fas fa-tasks"></i> Tareas asignadas para este día:</h4><ul style="list-style: none; padding: 0;">`; tasks.forEach(t => { let taskTitle = t.texto; let indentStyle = ''; if (t.nivel === "Sub-tarea") { taskTitle = `&nbsp;&nbsp;&nbsp;<i class="fas fa-indent"></i> ${t.texto}`; indentStyle = 'padding-left: 20px;'; } contentHtml += `<li style="${indentStyle}"><strong>${taskTitle}</strong><br><small><em>Evento:</em> ${t.eventoNombre}</small><br>`; if (t.nivel === "Sub-tarea" && t.tareaPadre) { contentHtml += `<small><em>Tarea Padre:</em> ${t.tareaPadre}</small><br>`; } contentHtml += `<small><em>Fase:</em> ${t.faseNombre}</small><br><small><em>Inicio:</em> ${app.formatDateTime(t.fechaInicio)} | <em>Fin:</em> ${app.formatDateTime(t.fechaFin)}</small><br><small><em>Responsables:</em> ${app.getMiembrosNombres(t.responsables) || 'Sin asignar'}</small></li>`; }); contentHtml += `</ul>`; } else if (!events || events.length === 0) { contentHtml += `<p style="text-align: center; color: var(--light-text-color); padding: 1.5rem 0;">No hay eventos que inicien ni tareas asignadas para este día.</p>`; } listEl.innerHTML = contentHtml; app.openModal(app.modals.dayTasks); };
+        app.showDayDetails = (dateStr, tasks, events) => { const dateObj = new Date(dateStr + 'T00:00:00'); document.getElementById('day-tasks-title').textContent = `Detalle del Día: ${dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`; const listEl = document.getElementById('day-tasks-list'); let contentHtml = ''; if (events && events.length > 0) { contentHtml += `<h4 style="color: var(--danger-color); margin-bottom: 0.5rem;"><i class="fas fa-play-circle"></i> Eventos que inician este día:</h4><ul style="list-style: none; padding: 0;">`; events.forEach(event => { contentHtml += `<li><strong>${event.nombre}</strong><br><small><em>Tipo:</em> ${event.projectType || 'N/A'}</small><br><small><em>Inicio:</em> ${app.formatDate(event.fechaInicio)} | <em>Fin:</em> ${app.formatDate(event.fechaFin)}</small></li>`; }); contentHtml += `</ul>`; if (tasks && tasks.length > 0) { contentHtml += `<hr style="margin: 1.5rem 0; border-top: 1px dashed var(--border-color);">`; } } if (tasks && tasks.length > 0) { contentHtml += `<h4 style="color: var(--primary-color); margin-bottom: 0.5rem;"><i class="fas fa-tasks"></i> Tareas asignadas para este día:</h4><ul style="list-style: none; padding: 0;">`; tasks.forEach(t => { let taskTitle = t.texto; let indentStyle = ''; if (t.nivel === "Sub-tarea") { taskTitle = `   <i class="fas fa-indent"></i> ${t.texto}`; indentStyle = 'padding-left: 20px;'; } contentHtml += `<li style="${indentStyle}"><strong>${taskTitle}</strong><br><small><em>Evento:</em> ${t.eventoNombre}</small><br>`; if (t.nivel === "Sub-tarea" && t.tareaPadre) { contentHtml += `<small><em>Tarea Padre:</em> ${t.tareaPadre}</small><br>`; } contentHtml += `<small><em>Fase:</em> ${t.faseNombre}</small><br><small><em>Inicio:</em> ${app.formatDateTime(t.fechaInicio)} | <em>Fin:</em> ${app.formatDateTime(t.fechaFin)}</small><br><small><em>Responsables:</em> ${app.getMiembrosNombres(t.responsables) || 'Sin asignar'}</small></li>`; }); contentHtml += `</ul>`; } else if (!events || events.length === 0) { contentHtml += `<p style="text-align: center; color: var(--light-text-color); padding: 1.5rem 0;">No hay eventos que inicien ni tareas asignadas para este día.</p>`; } listEl.innerHTML = contentHtml; app.openModal(app.modals.dayTasks); };
         
-        // --- HANDLERS MEJORADOS PARA FINANZAS ---
         app.showFinanzasMainView = () => { document.getElementById('finanzas-main-view').style.display = 'block'; document.getElementById('finanzas-detail-view').style.display = 'none'; app.renderFinanzasTable(); };
         app.showFinanzasDetailView = (miembroId) => { document.getElementById('finanzas-main-view').style.display = 'none'; const detailView = document.getElementById('finanzas-detail-view'); detailView.style.display = 'block'; app.renderFinanzasDetail(miembroId); };
         app.renderFinanzasDetail = (miembroId) => { const miembro = state.equipo.find(m => m.id === miembroId); const detailView = document.getElementById('finanzas-detail-view'); if (!miembro) { detailView.innerHTML = `<p>Error: Miembro no encontrado.</p>`; return; } const renderPagosListHTML = (tipo) => { const pagos = miembro[tipo] || []; if (pagos.length === 0) return emptyStateMsg(`No hay pagos de ${tipo} registrados.`); return `<div class="finanzas-pagos-list">` + pagos.map(p => `<div class="finanzas-pago-item" data-pago-id="${p.id}"><span>${p.concepto || 'Sin concepto'}</span><span>${app.formatDate(p.fechaInicio)} al ${app.formatDate(p.fechaFin)}</span><span>${app.formatCurrency(p.valor)}</span><div class="finanzas-pago-actions"><button class="btn btn-warning btn-sm" onclick="app.handleEditPago(${miembro.id}, '${tipo}', ${p.id})"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="app.handleDeletePago(${miembro.id}, '${tipo}', ${p.id})"><i class="fas fa-trash"></i></button></div></div>`).join('') + `</div>`; }; detailView.innerHTML = ` <div class="card"> <div class="card-header"> <h3><i class="fas fa-user-circle"></i> Gestión de Pagos: ${miembro.nombre}</h3> <button class="btn btn-secondary" onclick="app.showFinanzasMainView()"><i class="fas fa-arrow-left"></i> Volver a la lista</button> </div> <div class="card-body"> <div class="finanzas-detail-grid"> <!-- Columna Honorarios --> <div class="card"> <div class="card-header"><h4><i class="fas fa-file-invoice-dollar"></i> Honorarios</h4></div> <div class="card-body"> ${renderPagosListHTML('honorarios')} <form class="finanzas-add-pago-form" onsubmit="event.preventDefault(); app.handleAddPago(${miembro.id}, 'honorarios');"> <div class="form-group"><label>Concepto</label><input type="text" id="honorario-concepto-${miembro.id}" required></div> <div class="form-group"><label>Valor</label><input type="number" id="honorario-valor-${miembro.id}" required></div> <div class="form-group"><label>Fecha Inicio</label><input type="date" id="honorario-fechaInicio-${miembro.id}" required></div> <div class="form-group"><label>Fecha Fin</label><input type="date" id="honorario-fechaFin-${miembro.id}" required></div> <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Añadir Honorario</button> </form> </div> </div> <!-- Columna Desplazamientos --> <div class="card"> <div class="card-header"><h4><i class="fas fa-route"></i> Desplazamientos</h4></div> <div class="card-body"> ${renderPagosListHTML('desplazamientos')} <form class="finanzas-add-pago-form" onsubmit="event.preventDefault(); app.handleAddPago(${miembro.id}, 'desplazamientos');"> <div class="form-group"><label>Concepto</label><input type="text" id="desplazamiento-concepto-${miembro.id}" required></div> <div class="form-group"><label>Valor</label><input type="number" id="desplazamiento-valor-${miembro.id}" required></div> <div class="form-group"><label>Fecha Inicio</label><input type="date" id="desplazamiento-fechaInicio-${miembro.id}" required></div> <div class="form-group"><label>Fecha Fin</label><input type="date" id="desplazamiento-fechaFin-${miembro.id}" required></div> <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Añadir Desplazamiento</button> </form> </div> </div> </div> </div> </div> `; };
@@ -701,7 +830,6 @@
         app.handleSaveObservacion = () => { const eId = document.getElementById('observacion-task-path-eid').value; const f = document.getElementById('observacion-task-path-f').value; const tId = document.getElementById('observacion-task-path-tid').value; const stId = document.getElementById('observacion-task-path-stid').value; const task = stId ? state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId).subtareas.find(st=>st.id==stId) : state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId); if (!task || !quillObservacionEditor) return; const newObservacion = quillObservacionEditor.root.innerHTML; task.observacion = (newObservacion === '<p><br></p>') ? '' : newObservacion; app.saveState(); const viewContainer = document.querySelector('#observacion-view-container .ql-editor'); viewContainer.innerHTML = task.observacion || '<p><i>No hay observaciones. Haga clic en "Editar" para añadir una.</i></p>'; document.getElementById('observacion-view-container').style.display = 'block'; document.getElementById('observacion-editor-container').style.display = 'none'; document.getElementById('btn-enter-observacion-edit-mode').style.display = 'inline-block'; document.getElementById('observacion-actions-container').style.display = 'none'; };
         app.addOtroItem = () => { state.otros.push({ id: 'otro-' + Date.now(), title: 'Nueva Lista (Haz clic para editar)', content: '' }); app.saveState(); app.renderOtrosModule(); }; app.deleteOtroItem = (id) => { if (confirm('¿Seguro que quieres eliminar esta lista y todo su contenido?')) { state.otros = state.otros.filter(item => item.id !== id); app.saveState(); app.renderOtrosModule(); } }; app.editOtroItemTitle = (h4, id) => { const originalTitle = h4.textContent.trim(); h4.innerHTML = `<input type="text" class="inline-edit-input" value="${originalTitle}">`; const input = h4.querySelector('input'); input.focus(); input.select(); const save = () => { const newTitle = input.value.trim(); const item = state.otros.find(i => i.id === id); if (item && newTitle) { item.title = newTitle; app.saveState(); } h4.textContent = item.title; }; input.addEventListener('blur', save); input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { h4.textContent = originalTitle; } }); }; app.toggleOtroItem = (headerEl) => { const itemEl = headerEl.parentElement; const editorId = `otro-editor-${itemEl.dataset.id}`; const item = state.otros.find(i => i.id === itemEl.dataset.id); itemEl.classList.toggle('open'); if (itemEl.classList.contains('open')) { if (!app.activeQuillEditors[editorId]) { const quill = new Quill(`#${editorId}`, { theme: 'snow', placeholder: 'Escribe aquí...' }); quill.root.innerHTML = item.content || ''; app.activeQuillEditors[editorId] = quill; } } else { if (app.activeQuillEditors[editorId]) { item.content = app.activeQuillEditors[editorId].root.innerHTML; app.saveState(); app.activeQuillEditors[editorId] = null; delete app.activeQuillEditors[editorId]; document.getElementById(editorId).innerHTML = ''; } } };
         
-        // --- HANDLERS PARA TRANSFERIR TAREAS ---
         app.openTransferModal = (eId, f, tId, stId = null) => {
             const path = { eId, f, tId, stId };
             const task = stId ? state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId).subtareas.find(st=>st.id==stId) : state.eventos.find(e=>e.id==eId).fases[f].find(t=>t.id==tId);
@@ -759,7 +887,45 @@
         document.getElementById('dark-mode-toggle').addEventListener('click', () => app.toggleDarkMode());
         document.querySelectorAll('.tab-link').forEach(link => link.addEventListener('click', app.handleTabClick));
         document.getElementById('btn-add-evento').addEventListener('click', () => { document.getElementById('form-evento').reset(); document.getElementById('evento-proyecto-tipo').value = ""; app.renderProjectTabs(); app.openModal(app.modals.evento); });
-        document.getElementById('form-evento').addEventListener('submit', e => { e.preventDefault(); const fechaInicio = document.getElementById('evento-fecha-inicio').value; const fechaFin = document.getElementById('evento-fecha-fin').value; const projectType = document.getElementById('evento-proyecto-tipo').value.trim(); if (new Date(fechaFin) < new Date(fechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; } if (!projectType) { alert('Por favor, ingrese un tipo de proyecto para el evento.'); return; } const newEvent = { id: 'evt-' + Date.now(), nombre: document.getElementById('evento-nombre').value, fechaInicio: fechaInicio, fechaFin: fechaFin, projectType: projectType, descripcion: '', order: state.eventos.length, fases: JSON.parse(JSON.stringify(checklistTemplate)) }; const assignIds = (tasks) => { tasks.forEach(task => { task.id = Date.now() + Math.random(); if (task.subtareas && Array.isArray(task.subtareas)) { assignIds(task.subtareas); } }); }; Object.values(newEvent.fases).forEach(faseTasks => assignIds(faseTasks)); state.eventos.push(newEvent); if (!state.eventProjectTypes.includes(projectType)) { state.eventProjectTypes.push(projectType); } app.saveState(); currentEventProjectTypeFilter = 'all'; app.render(); app.closeModal(app.modals.evento); });
+        
+        // --- CORRECCIÓN 1 (PARTE D): Usar la nueva función al crear un evento ---
+        document.getElementById('form-evento').addEventListener('submit', e => {
+            e.preventDefault();
+            const fechaInicio = document.getElementById('evento-fecha-inicio').value;
+            const fechaFin = document.getElementById('evento-fecha-fin').value;
+            const projectType = document.getElementById('evento-proyecto-tipo').value.trim();
+            if (new Date(fechaFin) < new Date(fechaInicio)) {
+                alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+                return;
+            }
+            if (!projectType) {
+                alert('Por favor, ingrese un tipo de proyecto para el evento.');
+                return;
+            }
+            const newEvent = {
+                id: 'evt-' + Date.now(),
+                nombre: document.getElementById('evento-nombre').value,
+                fechaInicio: fechaInicio,
+                fechaFin: fechaFin,
+                projectType: projectType,
+                descripcion: '',
+                order: state.eventos.length,
+                fases: createChecklistTemplate() // Usar la fábrica aquí
+            };
+            
+            // Ya no es necesario asignar IDs aquí porque la fábrica lo hace.
+            // const assignIds = ...
+            
+            state.eventos.push(newEvent);
+            if (!state.eventProjectTypes.includes(projectType)) {
+                state.eventProjectTypes.push(projectType);
+            }
+            app.saveState();
+            currentEventProjectTypeFilter = 'all';
+            app.render();
+            app.closeModal(app.modals.evento);
+        });
+
         document.getElementById('form-edit-evento').addEventListener('submit', e => { e.preventDefault(); const eventoId = document.getElementById('edit-evento-id').value; const evento = state.eventos.find(evt => evt.id === eventoId); if (!evento) { alert('Error: Evento no encontrado.'); return; } const newNombre = document.getElementById('edit-evento-nombre').value; const newFechaInicio = document.getElementById('edit-evento-fecha-inicio').value; const newFechaFin = document.getElementById('edit-evento-fecha-fin').value; const newProjectType = document.getElementById('edit-evento-proyecto-tipo').value.trim(); if (new Date(newFechaFin) < new Date(newFechaInicio)) { alert('La fecha de fin no puede ser anterior a la fecha de inicio.'); return; } if (!newProjectType) { alert('Por favor, ingrese un tipo de proyecto para el evento.'); return; } evento.nombre = newNombre; evento.fechaInicio = newFechaInicio; evento.fechaFin = newFechaFin; evento.projectType = newProjectType; if (!state.eventProjectTypes.includes(newProjectType)) { state.eventProjectTypes.push(newProjectType); } app.saveState(); app.render(); app.closeModal(app.modals.editEvento); });
         document.getElementById('btn-add-miembro').addEventListener('click', () => { document.getElementById('form-miembro').reset(); document.getElementById('miembro-id').value = ''; document.getElementById('modal-miembro-title').innerText = 'Añadir Miembro'; app.openModal(app.modals.miembro); });
         document.getElementById('form-miembro').addEventListener('submit', e => { e.preventDefault(); const id = document.getElementById('miembro-id').value; const nombre = document.getElementById('miembro-nombre').value; if(id) { state.equipo.find(m => m.id == id).nombre = nombre; } else { state.equipo.push({ id: Date.now(), nombre, honorarios: [], desplazamientos: [] }); } app.saveState(); app.render(); app.closeModal(app.modals.miembro); });
