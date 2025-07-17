@@ -445,7 +445,12 @@
                     <h4>Importar Datos (Restaurar)</h4>
                     <p>Carga un archivo de backup (.json) para restaurar el estado de la aplicación. ¡Sobrescribirá los datos actuales!</p>
                     <input type="file" id="import-file-input" accept=".json" style="display: none;">
-                    <button class="btn btn-danger" onclick="document.getElementById('import-file-input').click();"><i class="fas fa-file-import"></i> Importar Backup</button>
+                    <button class="btn btn-success" onclick="document.getElementById('import-file-input').click();"><i class="fas fa-file-import"></i> Importar Backup</button>
+                </div>
+                <div class="report-card">
+                    <h4>Eliminar Datos (Definitivamente)</h4>
+                    <p>Elimina todo el estado de la aplicación (eventos, equipo, tareas, finanzas).</p>
+                    <button class="btn btn-danger" onclick="resetApp()"><i class="fas fa fa-trash"></i> Eliminar Backup</button>
                 </div>
             </div>
         </div>
